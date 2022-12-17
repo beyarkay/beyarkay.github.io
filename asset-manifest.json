@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/eskom-calendar/static/css/main.e6c13ad2.css",
-    "main.js": "/eskom-calendar/static/js/main.b1dbecc1.js",
-    "static/js/787.d6abb151.chunk.js": "/eskom-calendar/static/js/787.d6abb151.chunk.js",
-    "index.html": "/eskom-calendar/index.html",
-    "main.e6c13ad2.css.map": "/eskom-calendar/static/css/main.e6c13ad2.css.map",
-    "main.b1dbecc1.js.map": "/eskom-calendar/static/js/main.b1dbecc1.js.map",
-    "787.d6abb151.chunk.js.map": "/eskom-calendar/static/js/787.d6abb151.chunk.js.map"
+    "main.css": "/static/css/main.e6c13ad2.css",
+    "main.js": "/static/js/main.2ca1deab.js",
+    "static/js/787.d6abb151.chunk.js": "/static/js/787.d6abb151.chunk.js",
+    "index.html": "/index.html",
+    "main.e6c13ad2.css.map": "/static/css/main.e6c13ad2.css.map",
+    "main.2ca1deab.js.map": "/static/js/main.2ca1deab.js.map",
+    "787.d6abb151.chunk.js.map": "/static/js/787.d6abb151.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.b1dbecc1.js"
+    "static/js/main.2ca1deab.js"
   ]
 }
