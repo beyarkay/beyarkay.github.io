@@ -1,11 +1,3 @@
-:root {
-    --theme-a: #F8B195;
-    --theme-b: #F67280;
-    --theme-c: #C06C84;
-    --theme-d: #6C5B7B;
-    --theme-e: #355C7D;
-}
-
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -13,11 +5,6 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--theme-e);
-}
-
-h1, h2, h3, h4, h5, h6, p{
-    color: var(--theme-a);
 }
 
 code {

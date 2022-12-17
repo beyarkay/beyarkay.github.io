@@ -5,7 +5,7 @@ import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import CopyToClipboard from './CopyToClipboard';
-import FullCalendar from '@fullcalendar/react' // must go before plugins
+import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import iCalendarPlugin from '@fullcalendar/icalendar'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -13,7 +13,6 @@ import { Octokit } from "@octokit/core";
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 import Button from '@mui/material/Button';
-import copy from 'clipboard-copy';
 
 export type Schedule = {
     area_name: string;
@@ -63,7 +62,7 @@ function App() {
     // Get the list of calendars
     React.useEffect(() => {
         const octokit = new Octokit({
-            auth: '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'
+            auth: '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'
         })
         octokit.request(
             'GET /repos/beyarkay/eskom-calendar/releases/72143886/assets', {
@@ -80,15 +79,12 @@ function App() {
                 dl_url: d.browser_download_url,
             };})
 
-            const owner = 'beyarkay';
-            const repo = 'eskom-calendar';
-            const assetId = '' + items[0].calId;
-
             setItems(items)
         }, (err) => {
             setIsLoaded(false)
             setError(err)
             console.log("Error downloading release assets")
+            console.log(err)
         })
     }, []);
 
@@ -210,7 +206,7 @@ function prettifyTitle(title: string) {
         .replaceAll("-", " ")
         .replace(
             /\w\S*/g,
-            (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+            txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
         )
 }
 
