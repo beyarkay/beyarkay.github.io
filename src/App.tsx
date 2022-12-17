@@ -60,8 +60,9 @@ function App() {
 
     // Get the list of calendars
     React.useEffect(() => {
+        console.log(process.env.GH_PAGES_ENV_PAT)
         const octokit = new Octokit({
-            auth: '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'
+            auth: process.env.GH_PAGES_ENV_PAT || process.env.GH_PAGES_PAT
         })
         octokit.request(
             'GET /repos/beyarkay/eskom-calendar/releases/72143886/assets', {
