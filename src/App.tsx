@@ -44,7 +44,6 @@ function App() {
             return response.text()
         }).then(body => {
             const lines = body.split("\n")
-            const _head = lines.shift()
             const csvSchedule = lines.map(line => {
                 const vals = line.split(",")
                 return {
@@ -132,7 +131,7 @@ function App() {
                 </Typography>
                 <Autocomplete
                     onChange={(_event, value) => {
-                        setItemIdx(items.findIndex(item => item['label'] == value.label))
+                        setItemIdx(items.findIndex(item => item['label'] === value.label))
                     }}
                     isOptionEqualToValue={(option: any, value: any) => option.label === value.label}
                     id="autocomplete-areas"
