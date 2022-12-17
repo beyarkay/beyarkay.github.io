@@ -125,6 +125,9 @@ function App() {
                     Eskom loadshedding schedules in your digital calendar
                 </Typography>
                 <Typography >
+                Work in progress. Features are temporary.
+                </Typography>
+                <Typography >
                 1. Find your location
                 </Typography>
                 <Autocomplete
