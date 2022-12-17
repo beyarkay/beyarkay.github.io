@@ -1,5 +1,6 @@
 {
   "name": "beyarkay.github.io",
+  "homepage": "https://beyarkay.github.io",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -36,6 +37,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -b main -d build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
