@@ -1,544 +1,217 @@
 import React from 'react';
 import './App.css';
 import Autocomplete from '@mui/material/Autocomplete';
-import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { createTheme } from '@mui/material/styles';
-import {Calendar, Area} from './Calendar';
+import CopyToClipboard from './CopyToClipboard';
+import FullCalendar from '@fullcalendar/react' // must go before plugins
+import dayGridPlugin from '@fullcalendar/daygrid'
+import iCalendarPlugin from '@fullcalendar/icalendar'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import { Octokit } from "@octokit/core";
+import parse from 'autosuggest-highlight/parse';
+import match from 'autosuggest-highlight/match';
+import Button from '@mui/material/Button';
+import copy from 'clipboard-copy';
+
+export type Schedule = {
+    area_name: string;
+    start: string;
+    finsh: string;
+    stage: number;
+    source: string;
+};
+
+export type Event = {
+    title: string;
+    start: string;
+    end: string;
+};
 
 function App() {
-    const [ csv, setCsv ] = React.useState<string | undefined >();
+    const [error, setError] = React.useState(null);
+    const [isLoaded, setIsLoaded] = React.useState(false);
+    const [items, setItems] = React.useState<any[]>([]);
+    const [itemIdx, setItemIdx] = React.useState(0);
+    const [events, setEvents] = React.useState<Event[]>([]);
+    const [schedules, setSchedules] = React.useState<Schedule[]>([]);
 
-    fetch('./machine_friendly.csv')
-        .then(response => response.text())
-        .then(responseText =>  {
-            setCsv(responseText);
-            const vals = csv?.split("\n").map(line => line.split(","));
+
+    // Load in the ICS data
+    React.useEffect(() => {
+        fetch('http://129.151.83.171/machine_friendly.csv')
+        .then(response => {
+            return response.text()
+        }).then(body => {
+            const lines = body.split("\n")
+            const _head = lines.shift()
+            const csvSchedule = lines.map(line => {
+                const vals = line.split(",")
+                return {
+                    area_name: vals[0],
+                    start:     vals[1],
+                    finsh:     vals[2],
+                    stage:     Number(vals[3]),
+                    source:    vals[4],
+                }
+            })
+            setSchedules(csvSchedule)
         });
+    }, []);
 
-    const areas = [
-        {label: "city-of-cape-town-area-11"},
-        {label: "city-of-cape-town-area-10"},
-        {label: "city-of-cape-town-area-1"},
-        {label: "city-of-cape-town-area-12"},
-        {label: "city-of-cape-town-area-13"},
-        {label: "city-of-cape-town-area-14"},
-        {label: "city-of-cape-town-area-15"},
-        {label: "city-of-cape-town-area-16"},
-        {label: "city-of-cape-town-area-2"},
-        {label: "city-of-cape-town-area-3"},
-        {label: "city-of-cape-town-area-4"},
-        {label: "city-of-cape-town-area-5"},
-        {label: "city-of-cape-town-area-6"},
-        {label: "city-of-cape-town-area-7"},
-        {label: "city-of-cape-town-area-8"},
-        {label: "city-of-cape-town-area-9"},
-        {label: "city-power-1"},
-        {label: "city-power-10"},
-        {label: "city-power-11"},
-        {label: "city-power-12"},
-        {label: "city-power-13"},
-        {label: "city-power-14"},
-        {label: "city-power-15"},
-        {label: "city-power-16"},
-        {label: "city-power-2"},
-        {label: "city-power-3"},
-        {label: "city-power-4"},
-        {label: "city-power-5"},
-        {label: "city-power-6"},
-        {label: "city-power-7"},
-        {label: "city-power-8"},
-        {label: "city-power-9"},
-        {label: "eastern-cape-adelaide"},
-        {label: "eastern-cape-arbedeen"},
-        {label: "eastern-cape-barklyeast"},
-        {label: "eastern-cape-bathurst"},
-        {label: "eastern-cape-bedford"},
-        {label: "eastern-cape-burgersdorp"},
-        {label: "eastern-cape-butterworth"},
-        {label: "eastern-cape-capestfrancisbay"},
-        {label: "eastern-cape-cathcart"},
-        {label: "eastern-cape-cradock"},
-        {label: "eastern-cape-dordrecht"},
-        {label: "eastern-cape-dutywa"},
-        {label: "eastern-cape-elliot"},
-        {label: "eastern-cape-george"},
-        {label: "eastern-cape-graaf-reinet"},
-        {label: "eastern-cape-grahamstown"},
-        {label: "eastern-cape-hofmeyer"},
-        {label: "eastern-cape-humansdorp"},
-        {label: "eastern-cape-indwe"},
-        {label: "eastern-cape-jansenville"},
-        {label: "eastern-cape-jeffreysbay"},
-        {label: "eastern-cape-kirkwood"},
-        {label: "eastern-cape-komga"},
-        {label: "eastern-cape-ladygrey"},
-        {label: "eastern-cape-maclear"},
-        {label: "eastern-cape-marselle"},
-        {label: "eastern-cape-matatiele"},
-        {label: "eastern-cape-mbizana"},
-        {label: "eastern-cape-middelburg"},
-        {label: "eastern-cape-molteno"},
-        {label: "eastern-cape-mthatha"},
-        {label: "eastern-cape-oviston"},
-        {label: "eastern-cape-peddie"},
-        {label: "eastern-cape-portalfred"},
-        {label: "eastern-cape-queenstown"},
-        {label: "eastern-cape-sommerseteast"},
-        {label: "eastern-cape-sterkskroon"},
-        {label: "eastern-cape-steytlertville"},
-        {label: "eastern-cape-stfrancisbay"},
-        {label: "eastern-cape-stutterheim"},
-        {label: "eastern-cape-tarkastad"},
-        {label: "eastern-cape-teebus"},
-        {label: "eastern-cape-ugie"},
-        {label: "eastern-cape-umtata"},
-        {label: "eastern-cape-venterstad"},
-        {label: "eastern-cape-willowmore"},
-        {label: "free-state-allanridge"},
-        {label: "free-state-bethlehem"},
-        {label: "free-state-bethulie"},
-        {label: "free-state-boshof"},
-        {label: "free-state-bothaville"},
-        {label: "free-state-brandfort"},
-        {label: "free-state-bultfontein"},
-        {label: "free-state-clocolan"},
-        {label: "free-state-cornelia"},
-        {label: "free-state-dealesville"},
-        {label: "free-state-deneysville"},
-        {label: "free-state-dewetsdorp"},
-        {label: "free-state-edenburg"},
-        {label: "free-state-edenville"},
-        {label: "free-state-ek-ondv-van-alice"},
-        {label: "free-state-excelsior"},
-        {label: "free-state-ezenzeleni"},
-        {label: "free-state-fatengtshentsho"},
-        {label: "free-state-fauresmigh"},
-        {label: "free-state-ficksburg"},
-        {label: "free-state-flamingo"},
-        {label: "free-state-fouriesburg"},
-        {label: "free-state-frankfort"},
-        {label: "free-state-gariep"},
-        {label: "free-state-groenvoerlande"},
-        {label: "free-state-harrismith"},
-        {label: "free-state-heilbron"},
-        {label: "free-state-hennenman"},
-        {label: "free-state-hertzogville"},
-        {label: "free-state-hoopstad"},
-        {label: "free-state-ipopeng"},
-        {label: "free-state-jagersfontein"},
-        {label: "free-state-kestell"},
-        {label: "free-state-koffiefontein"},
-        {label: "free-state-koppies"},
-        {label: "free-state-kroonstad"},
-        {label: "free-state-ladybrand"},
-        {label: "free-state-lesotho"},
-        {label: "free-state-lindley"},
-        {label: "free-state-luckhof"},
-        {label: "free-state-marquad"},
-        {label: "free-state-matoporong"},
-        {label: "free-state-naleditownship"},
-        {label: "free-state-ngwathemunic"},
-        {label: "free-state-odendaalsrus"},
-        {label: "free-state-oranjeville"},
-        {label: "free-state-panorama"},
-        {label: "free-state-parys"},
-        {label: "free-state-paulroux"},
-        {label: "free-state-petrusburg"},
-        {label: "free-state-petrussteyn"},
-        {label: "free-state-philipolis"},
-        {label: "free-state-phiritona"},
-        {label: "free-state-phutaditjhaba"},
-        {label: "free-state-qwa-qwa"},
-        {label: "free-state-reddersburg"},
-        {label: "free-state-reitz"},
-        {label: "free-state-riebeeckstad"},
-        {label: "free-state-rosendal"},
-        {label: "free-state-rouxville"},
-        {label: "free-state-rweleleyathunya"},
-        {label: "free-state-senekal"},
-        {label: "free-state-seretse"},
-        {label: "free-state-smithfield"},
-        {label: "free-state-springfonteintown"},
-        {label: "free-state-springfonteintruck(garage)"},
-        {label: "free-state-steynsrus"},
-        {label: "free-state-theunissen"},
-        {label: "free-state-trompsburg"},
-        {label: "free-state-tsheseng"},
-        {label: "free-state-tshiame"},
-        {label: "free-state-tweeling"},
-        {label: "free-state-tweespruit"},
-        {label: "free-state-vaalpark"},
-        {label: "free-state-vanstandensrus"},
-        {label: "free-state-veerkerde-vlei"},
-        {label: "free-state-ventersburg"},
-        {label: "free-state-viljoenskroon"},
-        {label: "free-state-villiers"},
-        {label: "free-state-virginianorth"},
-        {label: "free-state-virginiatown"},
-        {label: "free-state-vredefort"},
-        {label: "free-state-w"},
-        {label: "free-state-warden"},
-        {label: "free-state-welkombulk"},
-        {label: "free-state-welkomtown"},
-        {label: "free-state-wepener"},
-        {label: "free-state-wesselsbron"},
-        {label: "free-state-winburg"},
-        {label: "free-state-witsiekhoek"},
-        {label: "free-state-zamdela"},
-        {label: "free-state-zastron"},
-        {label: "gauteng-ekurhuleni-block-1"},
-        {label: "gauteng-ekurhuleni-block-10"},
-        {label: "gauteng-ekurhuleni-block-11"},
-        {label: "gauteng-ekurhuleni-block-12"},
-        {label: "gauteng-ekurhuleni-block-13"},
-        {label: "gauteng-ekurhuleni-block-14"},
-        {label: "gauteng-ekurhuleni-block-15"},
-        {label: "gauteng-ekurhuleni-block-16"},
-        {label: "gauteng-ekurhuleni-block-2"},
-        {label: "gauteng-ekurhuleni-block-3"},
-        {label: "gauteng-ekurhuleni-block-4"},
-        {label: "gauteng-ekurhuleni-block-5"},
-        {label: "gauteng-ekurhuleni-block-6"},
-        {label: "gauteng-ekurhuleni-block-7"},
-        {label: "gauteng-ekurhuleni-block-8"},
-        {label: "gauteng-ekurhuleni-block-9"},
-        {label: "gauteng-tshwane-group-1"},
-        {label: "gauteng-tshwane-group-10"},
-        {label: "gauteng-tshwane-group-11"},
-        {label: "gauteng-tshwane-group-12"},
-        {label: "gauteng-tshwane-group-13"},
-        {label: "gauteng-tshwane-group-14"},
-        {label: "gauteng-tshwane-group-15"},
-        {label: "gauteng-tshwane-group-16"},
-        {label: "gauteng-tshwane-group-2"},
-        {label: "gauteng-tshwane-group-3"},
-        {label: "gauteng-tshwane-group-4"},
-        {label: "gauteng-tshwane-group-5"},
-        {label: "gauteng-tshwane-group-6"},
-        {label: "gauteng-tshwane-group-7"},
-        {label: "gauteng-tshwane-group-8"},
-        {label: "gauteng-tshwane-group-9"},
-        {label: "kwazulu-natal-ballito"},
-        {label: "kwazulu-natal-dundee"},
-        {label: "kwazulu-natal-eshowe"},
-        {label: "kwazulu-natal-fleetwood"},
-        {label: "kwazulu-natal-glencoe"},
-        {label: "kwazulu-natal-greytown"},
-        {label: "kwazulu-natal-harding"},
-        {label: "kwazulu-natal-howick"},
-        {label: "kwazulu-natal-kodstad"},
-        {label: "kwazulu-natal-mandeni"},
-        {label: "kwazulu-natal-mpofana"},
-        {label: "kwazulu-natal-mpomphomeni"},
-        {label: "kwazulu-natal-mthonjaneni"},
-        {label: "kwazulu-natal-newcastle"},
-        {label: "kwazulu-natal-northern"},
-        {label: "kwazulu-natal-nquthu"},
-        {label: "kwazulu-natal-paulpietersburg"},
-        {label: "kwazulu-natal-raynkonyeni"},
-        {label: "kwazulu-natal-southern"},
-        {label: "kwazulu-natal-stanger"},
-        {label: "kwazulu-natal-ulundi"},
-        {label: "kwazulu-natal-umvoti"},
-        {label: "kwazulu-natal-uphongolo"},
-        {label: "kwazulu-natal-utrecht"},
-        {label: "limpopo-addney"},
-        {label: "limpopo-alldays-dorp"},
-        {label: "limpopo-arrie"},
-        {label: "limpopo-bayswater"},
-        {label: "limpopo-belabelatown"},
-        {label: "limpopo-diepsloot"},
-        {label: "limpopo-esoringa"},
-        {label: "limpopo-genoa"},
-        {label: "limpopo-gideon"},
-        {label: "limpopo-goedetrou"},
-        {label: "limpopo-grobblersdaltown"},
-        {label: "limpopo-innes"},
-        {label: "limpopo-kgapane(duiwelskloof)_town"},
-        {label: "limpopo-kgatla"},
-        {label: "limpopo-lephalale(ellisras)_town"},
-        {label: "limpopo-lesedingtownship"},
-        {label: "limpopo-magari"},
-        {label: "limpopo-makhado(louis_trichardt)_town"},
-        {label: "limpopo-marblehalltown"},
-        {label: "limpopo-modimollenystroomtown"},
-        {label: "limpopo-mohwadi(dendron)_town"},
-        {label: "limpopo-mokhurumela"},
-        {label: "limpopo-mokopane(potgieterus)town"},
-        {label: "limpopo-montz"},
-        {label: "limpopo-mookgophong(naboomspruit)"},
-        {label: "limpopo-mosehleng"},
-        {label: "limpopo-musinatown"},
-        {label: "limpopo-nancefieldtownship"},
-        {label: "limpopo-normandy"},
-        {label: "limpopo-phagamengtownship"},
-        {label: "limpopo-phalaborwatown"},
-        {label: "limpopo-rooiberg"},
-        {label: "limpopo-simson"},
-        {label: "limpopo-swart"},
-        {label: "limpopo-sweethome"},
-        {label: "limpopo-thabazimbitown"},
-        {label: "limpopo-thegrench"},
-        {label: "limpopo-vaalwatertown"},
-        {label: "limpopo-witten"},
-        {label: "mpumalanga-aerorand"},
-        {label: "mpumalanga-barberton"},
-        {label: "mpumalanga-bethal"},
-        {label: "mpumalanga-buffelspruit"},
-        {label: "mpumalanga-camcoll"},
-        {label: "mpumalanga-clever"},
-        {label: "mpumalanga-cohen"},
-        {label: "mpumalanga-cologne"},
-        {label: "mpumalanga-delta"},
-        {label: "mpumalanga-doornpoort"},
-        {label: "mpumalanga-dryden-rural"},
-        {label: "mpumalanga-ermelo"},
-        {label: "mpumalanga-estancia"},
-        {label: "mpumalanga-figtree"},
-        {label: "mpumalanga-greyslingstad"},
-        {label: "mpumalanga-highlands"},
-        {label: "mpumalanga-jerusalem"},
-        {label: "mpumalanga-kabokweni"},
-        {label: "mpumalanga-kanyamazani"},
-        {label: "mpumalanga-kemp"},
-        {label: "mpumalanga-kiepersol"},
-        {label: "mpumalanga-klipspringer"},
-        {label: "mpumalanga-komatipoort"},
-        {label: "mpumalanga-koorsboom"},
-        {label: "mpumalanga-kwa-guqa"},
-        {label: "mpumalanga-louwscreek"},
-        {label: "mpumalanga-lyndenburg"},
-        {label: "mpumalanga-malelane"},
-        {label: "mpumalanga-marathon"},
-        {label: "mpumalanga-mataffin_sub"},
-        {label: "mpumalanga-middelburg"},
-        {label: "mpumalanga-nelsriver_sub"},
-        {label: "mpumalanga-nkomazi"},
-        {label: "mpumalanga-ogies"},
-        {label: "mpumalanga-piet-retief"},
-        {label: "mpumalanga-sappi"},
-        {label: "mpumalanga-secunda"},
-        {label: "mpumalanga-sol"},
-        {label: "mpumalanga-standerton"},
-        {label: "mpumalanga-sundra"},
-        {label: "mpumalanga-usuthu-west"},
-        {label: "mpumalanga-vukuzakhe"},
-        {label: "mpumalanga-whiteriver"},
-        {label: "mpumalanga-wildebees"},
-        {label: "mpumalanga-witbank_ds"},
-        {label: "north-west-boikhutso"},
-        {label: "north-west-coligny"},
-        {label: "north-west-delareyville"},
-        {label: "north-west-gumtrees"},
-        {label: "north-west-hartebeesfontein"},
-        {label: "north-west-jouberton"},
-        {label: "north-west-klerksdorpmunic"},
-        {label: "north-west-klerksdorpnorth"},
-        {label: "north-west-klerksdorpwest"},
-        {label: "north-west-koster"},
-        {label: "north-west-leeudoringstad"},
-        {label: "north-west-lichtenburg"},
-        {label: "north-west-orkneymunic"},
-        {label: "north-west-ottosdal"},
-        {label: "north-west-potchefstroom"},
-        {label: "north-west-sannieshof"},
-        {label: "north-west-schweizer-reneke"},
-        {label: "north-west-stillfontein"},
-        {label: "north-west-swartruggens"},
-        {label: "north-west-ventersdorp"},
-        {label: "north-west-vryburg"},
-        {label: "north-west-waterworkspoints"},
-        {label: "north-west-wolmaranstad"},
-        {label: "north-west-woodhouse"},
-        {label: "north-west-zeerust"},
-        {label: "northern-cape-alexanderbay"},
-        {label: "northern-cape-augrabies"},
-        {label: "northern-cape-backlywest"},
-        {label: "northern-cape-bitterfontein"},
-        {label: "northern-cape-brandvlei"},
-        {label: "northern-cape-britstown"},
-        {label: "northern-cape-calvinia"},
-        {label: "northern-cape-carnarvon"},
-        {label: "northern-cape-christiana"},
-        {label: "northern-cape-colesberg"},
-        {label: "northern-cape-danielskuil"},
-        {label: "northern-cape-de-aar"},
-        {label: "northern-cape-deben"},
-        {label: "northern-cape-delsportshoop"},
-        {label: "northern-cape-dingleton"},
-        {label: "northern-cape-douglas"},
-        {label: "northern-cape-fraserburg"},
-        {label: "northern-cape-goodhouse"},
-        {label: "northern-cape-groblershoop"},
-        {label: "northern-cape-hanover"},
-        {label: "northern-cape-hopetown"},
-        {label: "northern-cape-jankempdorp"},
-        {label: "northern-cape-kakamas"},
-        {label: "northern-cape-kamieskroon"},
-        {label: "northern-cape-kathu"},
-        {label: "northern-cape-keimoes"},
-        {label: "northern-cape-kenhardt"},
-        {label: "northern-cape-koekenaap"},
-        {label: "northern-cape-kuruman"},
-        {label: "northern-cape-loeriesfontein"},
-        {label: "northern-cape-loxton"},
-        {label: "northern-cape-lutzville"},
-        {label: "northern-cape-merweville"},
-        {label: "northern-cape-nelspoort"},
-        {label: "northern-cape-nieuwoudtville"},
-        {label: "northern-cape-norvalspont"},
-        {label: "northern-cape-noupoort"},
-        {label: "northern-cape-okiep"},
-        {label: "northern-cape-oliefantshoek"},
-        {label: "northern-cape-petrusville"},
-        {label: "northern-cape-phillipstown"},
-        {label: "northern-cape-port-nolloth"},
-        {label: "northern-cape-potsmasburgindustry"},
-        {label: "northern-cape-potsmasburgtown"},
-        {label: "northern-cape-prieska"},
-        {label: "northern-cape-richmond"},
-        {label: "northern-cape-rietpoort"},
-        {label: "northern-cape-springbok"},
-        {label: "northern-cape-steinkopf"},
-        {label: "northern-cape-upington"},
-        {label: "northern-cape-vanderkloof"},
-        {label: "northern-cape-vanwyskvlei"},
-        {label: "northern-cape-victoriawest"},
-        {label: "northern-cape-vioolsdrift"},
-        {label: "northern-cape-vosburg"},
-        {label: "northern-cape-warrenton"},
-        {label: "northern-cape-willinston"},
-        {label: "western-cape-albertinia"},
-        {label: "western-cape-arniston"},
-        {label: "western-cape-ashton"},
-        {label: "western-cape-barrydale"},
-        {label: "western-cape-beaufort-west"},
-        {label: "western-cape-betties-bay"},
-        {label: "western-cape-bonnievale"},
-        {label: "western-cape-botrivier"},
-        {label: "western-cape-bredasdorp"},
-        {label: "western-cape-caledon"},
-        {label: "western-cape-calitzdorp"},
-        {label: "western-cape-ceres"},
-        {label: "western-cape-citrusdal"},
-        {label: "western-cape-clanwilliam"},
-        {label: "western-cape-darling"},
-        {label: "western-cape-de-doorns"},
-        {label: "western-cape-derust"},
-        {label: "western-cape-dysselsdorp"},
-        {label: "western-cape-elandsbaai"},
-        {label: "western-cape-franschoek"},
-        {label: "western-cape-gansbaai"},
-        {label: "western-cape-genadendal"},
-        {label: "western-cape-george"},
-        {label: "western-cape-glentana"},
-        {label: "western-cape-goedverwacht"},
-        {label: "western-cape-gouda"},
-        {label: "western-cape-graaf-water"},
-        {label: "western-cape-grabouw"},
-        {label: "western-cape-greyton"},
-        {label: "western-cape-grootbrak"},
-        {label: "western-cape-hawston"},
-        {label: "western-cape-heidelburg"},
-        {label: "western-cape-herbetsdal"},
-        {label: "western-cape-hermanus"},
-        {label: "western-cape-hopeful"},
-        {label: "western-cape-infanta"},
-        {label: "western-cape-klawer"},
-        {label: "western-cape-kleinbrak"},
-        {label: "western-cape-kleinmond"},
-        {label: "western-cape-klipdale"},
-        {label: "western-cape-knysna"},
-        {label: "western-cape-ladismith"},
-        {label: "western-cape-laingsburg"},
-        {label: "western-cape-lambertsbaai"},
-        {label: "western-cape-langebaan"},
-        {label: "western-cape-lutzville"},
-        {label: "western-cape-malgas"},
-        {label: "western-cape-malmesbury"},
-        {label: "western-cape-mcgregor"},
-        {label: "western-cape-montagu"},
-        {label: "western-cape-moorreesbury"},
-        {label: "western-cape-mossel-bay"},
-        {label: "western-cape-napier"},
-        {label: "western-cape-noree"},
-        {label: "western-cape-oudtshoorn"},
-        {label: "western-cape-paternoster"},
-        {label: "western-cape-piketberg"},
-        {label: "western-cape-plettenberg-bay"},
-        {label: "western-cape-porterville"},
-        {label: "western-cape-princealberttown"},
-        {label: "western-cape-pringle-bay"},
-        {label: "western-cape-protem"},
-        {label: "western-cape-rheenendal"},
-        {label: "western-cape-riebeeck-kasteel"},
-        {label: "western-cape-riebeeck-west"},
-        {label: "western-cape-riversdale"},
-        {label: "western-cape-riviersonderend"},
-        {label: "western-cape-robertson"},
-        {label: "western-cape-saldanahbay"},
-        {label: "western-cape-stanford"},
-        {label: "western-cape-stellenbosch"},
-        {label: "western-cape-sthelenabay"},
-        {label: "western-cape-stompeus-bay"},
-        {label: "western-cape-struisbaai"},
-        {label: "western-cape-sutherland"},
-        {label: "western-cape-suurbraak"},
-        {label: "western-cape-swellendam"},
-        {label: "western-cape-tesselaarsdal"},
-        {label: "western-cape-till-bay"},
-        {label: "western-cape-touwsrivier"},
-        {label: "western-cape-tulbagh"},
-        {label: "western-cape-van-rhynsdorp"},
-        {label: "western-cape-vanwyksdorp"},
-        {label: "western-cape-velddrift"},
-        {label: "western-cape-villiersdorp"},
-        {label: "western-cape-vleesbaai"},
-        {label: "western-cape-vredenburg"},
-        {label: "western-cape-vredendal"},
-        {label: "western-cape-wellington"},
-        {label: "western-cape-witsand"},
-        {label: "western-cape-wolseley"},
-        {label: "western-cape-worscester"},
-        {label: "western-cape-yzerfontein"},
-        {label: "western-cape-zoar"},
-    ]
-    const [value, setValue] = React.useState<Area | null>(areas[0]);
+    // Get the list of calendars
+    React.useEffect(() => {
+        const octokit = new Octokit({
+            auth: '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'
+        })
+        octokit.request(
+            'GET /repos/beyarkay/eskom-calendar/releases/72143886/assets', {
+            owner: 'beyarkay',
+            repo: 'repo',
+            release_id: '72143886'
+        }).then(r => {
+            setIsLoaded(true)
+            const items = r.data.map((d:any) => {return {
+                label: d.name.replace(".ics", "").replace(/-/g, ' '),
+                calId: d.id,
+                calName: d.name,
+                url: d.url,
+                dl_url: d.browser_download_url,
+            };})
 
-    return (<>
-        <Container maxWidth="lg">
-            <Typography variant="h4" align="center">
-                Eskom-calendar 
-            </Typography>
-            <Typography variant="subtitle1" align="center">
-                Eskom loadshedding schedules in your digital calendar
-            </Typography>
-            <Typography >
-            1. Find your location
-            </Typography>
-            <Autocomplete
-                value={value}
-                onChange={(_event: any, newValue: Area | null) => {
-                    setValue(newValue);
-                }}
-                autoComplete
-                autoHighlight
-                disablePortal
-                id="autocomplete-areas"
-                includeInputInList
-                options={areas}
-                renderInput={(params) => <TextField {...params} />}
-                size="small"
-                sx={{ width: 300 }}
-            />
-            <Calendar area_name={value}/>
-        </Container>
-    </>);
+            const owner = 'beyarkay';
+            const repo = 'eskom-calendar';
+            const assetId = '' + items[0].calId;
+
+            setItems(items)
+        }, (err) => {
+            setIsLoaded(false)
+            setError(err)
+            console.log("Error downloading release assets")
+        })
+    }, []);
+
+    // When the calendars are collected, choose a random one of them
+    React.useEffect(() => {
+        setItemIdx(Math.floor(Math.random() * items.length))
+    }, [items]);
+
+    // When a calendar has been selected, narrow down the schedules to just the
+    // one which was selected
+    React.useEffect(() => {
+        if (itemIdx < items.length) {
+            const area_name = items[itemIdx]['calName'].replace(".ics", "")
+            const events = schedules.filter(sched => sched.area_name === area_name)
+            let emojis = ["😕", "☹️", "😖", "😤", "😡", "🤬", "🔪", "☠️"];
+
+            setEvents(events.map(e => { return {
+                title: '🔌 ' + prettifyTitle(e.area_name) + ' Stage ' + e.stage + emojis[e.stage],
+                start: e.start,
+                end: e.finsh,
+            }}))
+        }
+    }, [items, itemIdx, schedules]);
+
+
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    } else if (!isLoaded) {
+        return <div>Loading...</div>;
+    } else {
+        return (<>
+            <Container maxWidth="lg">
+                <Typography variant="h4" align="center">
+                    eskom-calendar 
+                </Typography>
+                <Typography variant="subtitle1" align="center">
+                    Eskom loadshedding schedules in your digital calendar
+                </Typography>
+                <Typography >
+                1. Find your location
+                </Typography>
+                <Autocomplete
+                    onChange={(_event, value) => {
+                        setItemIdx(items.findIndex(item => item['label'] == value.label))
+                    }}
+                    isOptionEqualToValue={(option: any, value: any) => option.label === value.label}
+                    id="autocomplete-areas"
+                    blurOnSelect
+                    options={items || []}
+                    defaultValue={(items || [])[itemIdx]}
+                    value={(items || [])[itemIdx]}
+                    renderInput={(params) => <TextField {...params} />}
+                    includeInputInList
+                    size="small"
+                    sx={{ width: 300 }}
+                    autoComplete
+                    autoHighlight
+                    renderOption={(props, option, { inputValue }) => {
+                        const matches = match(option.label, inputValue, { insideWords: true });
+                        const parts = parse(option.label, matches);
+
+                        return (
+                        <li {...props}>
+                            <div>
+                            {parts.map((part, index) => (
+                                <span
+                                key={index}
+                                style={{
+                                    fontWeight: part.highlight ? 700 : 400,
+                                }}
+                                >
+                                {part.text}
+                                </span>
+                            ))}
+                            </div>
+                        </li>
+                        );
+                    }}
+                />
+                <Typography >
+                2. Copy the subscription link: 
+                </Typography>
+                <CopyToClipboard>
+                {({ copy }) => (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => copy(items[itemIdx]['dl_url'])}
+                    > Copy </Button>
+                )}
+                </CopyToClipboard>
+                <Typography >
+                3. Enjoy your calendar:
+                </Typography>
+                <FullCalendar
+                    plugins={[dayGridPlugin, timeGridPlugin, iCalendarPlugin]}
+                    initialView="timeGridWeek"
+                    events={events}
+                />
+            </Container>
+        </>);
+    }
 }
 
+function prettifyTitle(title: string) { 
+    return title
+        .replace("city-of-cape-town", "Cape Town")
+        .replace("eastern-cape-", "EC")
+        .replace("free-state-", "FS")
+        .replace("kwazulu-natal-", "KZN")
+        .replace("limpopo-", "LP")
+        .replace("mpumalanga-", "MP")
+        .replace("north-west-", "NC")
+        .replace("northern-cape-", "NW")
+        .replace("western-cape-", "WC")
+        .replace("gauteng-ekurhuleni-block", "Ekurhuleni")
+        .replace("gauteng-tshwane-group", "Tshwane")
+        .replaceAll("-", " ")
+        .replace(
+            /\w\S*/g,
+            (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+        )
+}
 
 export default App;
