@@ -121,7 +121,9 @@ function FindCalendar() {
         {/* Yes this ternary is disgusting, but it'll get cleared up in a bit*/}
         { (!error && isLoaded) ? <Autocomplete
             onChange={(_event, value) => {
-                setItemIdx(items.findIndex(item => item["label"] === value?.label))
+                setItemIdx( prevItemIdx => {
+                    return value ? items.findIndex(item => item["label"] === value?.label) : prevItemIdx
+                })
             }}
             isOptionEqualToValue={(option: Item, value: Item) => option.label === value.label}
             id="autocomplete-areas"
