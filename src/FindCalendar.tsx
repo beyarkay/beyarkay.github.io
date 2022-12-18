@@ -104,7 +104,7 @@ function FindCalendar() {
         if (itemIdx < items.length) {
             const area_name = items[itemIdx]["calName"].replace(".ics", "")
             const events = schedules.filter(sched => sched.area_name === area_name)
-            const emojis = ["😕", "☹️", "😖", "😤", "😡", "🤬", "🔪", "☠️"]
+            const emojis = ["💡", "☹️", "😖", "😤", "😡", "🤬", "🔪", "☠️", "⚰️"]
 
             setEvents(events.map(e => { return {
                 title: "🔌 " + prettifyTitle(e.area_name) + " Stage " + e.stage + emojis[e.stage],
