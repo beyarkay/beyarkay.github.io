@@ -9,6 +9,7 @@
     "@fullcalendar/core": "^6.0.0",
     "@fullcalendar/icalendar": "^6.0.0",
     "@fullcalendar/react": "^6.0.0",
+    "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.10.7",
     "@octokit/core": "^4.1.0",
     "@reduxjs/toolkit": "^1.8.5",
