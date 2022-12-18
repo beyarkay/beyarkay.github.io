@@ -107,7 +107,7 @@ function FindCalendar() {
             const emojis = ["😕", "☹️", "😖", "😤", "😡", "🤬", "🔪", "☠️"]
 
             setEvents(events.map(e => { return {
-                title: "🔌 " + prettifyTitle(e.area_name) + " Stage " + e.stage + emojis[e.stage],
+                title: "🔌 " + prettifyTitle(e.area_name) + " Stage " + e.stage + emojis[e.stage-1],
                 start: e.start,
                 end: e.finsh,
             }}))
