@@ -1,4 +1,5 @@
-import Typography from '@mui/material/Typography';
+import * as React from "react"
+import Typography from "@mui/material/Typography"
 
 function Header() {
     return (<>
@@ -11,8 +12,8 @@ function Header() {
         <Typography align="center">
         Work in progress. Features are temporary.
         </Typography>
-    </>);
+    </>)
 }
 
-export default Header;
+export default Header
 

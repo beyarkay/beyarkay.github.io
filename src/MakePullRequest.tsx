@@ -1,4 +1,5 @@
-import Typography from '@mui/material/Typography';
+import * as React from "react"
+import Typography from "@mui/material/Typography"
 
 function MakePullRequest() {
     return (
@@ -6,7 +7,7 @@ function MakePullRequest() {
             Here be dragons
             {/*TODO: Find some way of creating a PR*/}
         </Typography>
-    );
+    )
 }
 
-export default MakePullRequest;
+export default MakePullRequest

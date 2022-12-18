@@ -1,16 +1,16 @@
-import * as React from 'react';
-import Autocomplete from '@mui/material/Autocomplete';
-import Button from '@mui/material/Button';
-import CopyToClipboard from './CopyToClipboard';
-import FullCalendar from '@fullcalendar/react'
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import dayGridPlugin from '@fullcalendar/daygrid'
-import iCalendarPlugin from '@fullcalendar/icalendar'
-import match from 'autosuggest-highlight/match';
-import parse from 'autosuggest-highlight/parse';
-import timeGridPlugin from '@fullcalendar/timegrid'
-import { Octokit } from "@octokit/core";
+import * as React from "react"
+import Autocomplete from "@mui/material/Autocomplete"
+import Button from "@mui/material/Button"
+import CopyToClipboard from "./CopyToClipboard"
+import FullCalendar from "@fullcalendar/react"
+import TextField from "@mui/material/TextField"
+import Typography from "@mui/material/Typography"
+import dayGridPlugin from "@fullcalendar/daygrid"
+import iCalendarPlugin from "@fullcalendar/icalendar"
+import match from "autosuggest-highlight/match"
+import parse from "autosuggest-highlight/parse"
+import timeGridPlugin from "@fullcalendar/timegrid"
+import { Octokit } from "@octokit/core"
 
 export type Schedule = {
     area_name: string;
@@ -26,34 +26,42 @@ export type Event = {
     end: string;
 };
 
+export type Item = {
+    label: string;
+    calId: string;
+    calName: string;
+    url: string;
+    dl_url: string;
+}
+
 function FindCalendar() {
-    const [error, setError] = React.useState(null);
-    const [isLoaded, setIsLoaded] = React.useState(false);
-    const [items, setItems] = React.useState<any[]>([]);
-    const [itemIdx, setItemIdx] = React.useState(0);
-    const [events, setEvents] = React.useState<Event[]>([]);
-    const [schedules, setSchedules] = React.useState<Schedule[]>([]);
+    const [error, setError] = React.useState(null)
+    const [isLoaded, setIsLoaded] = React.useState(false)
+    const [items, setItems] = React.useState<Item[]>([])
+    const [itemIdx, setItemIdx] = React.useState(0)
+    const [events, setEvents] = React.useState<Event[]>([])
+    const [schedules, setSchedules] = React.useState<Schedule[]>([])
 
     // Load in the ICS data
     React.useEffect(() => {
-        fetch('http://129.151.83.171/machine_friendly.csv')
-        .then(response => {
-            return response.text()
-        }).then(body => {
-            const lines = body.split("\n")
-            const csvSchedule = lines.map(line => {
-                const vals = line.split(",")
-                return {
-                    area_name: vals[0],
-                    start:     vals[1],
-                    finsh:     vals[2],
-                    stage:     Number(vals[3]),
-                    source:    vals[4],
-                }
+        fetch("http://129.151.83.171/machine_friendly.csv")
+            .then(response => {
+                return response.text()
+            }).then(body => {
+                const lines = body.split("\n")
+                const csvSchedule = lines.map(line => {
+                    const vals = line.split(",")
+                    return {
+                        area_name: vals[0],
+                        start:     vals[1],
+                        finsh:     vals[2],
+                        stage:     Number(vals[3]),
+                        source:    vals[4],
+                    }
+                })
+                setSchedules(csvSchedule)
             })
-            setSchedules(csvSchedule)
-        });
-    }, []);
+    }, [])
 
     // Get the list of calendars
     React.useEffect(() => {
@@ -62,19 +70,19 @@ function FindCalendar() {
             auth: process.env.GH_PAGES_ENV_PAT || process.env.GH_PAGES_PAT
         })
         octokit.request(
-            'GET /repos/beyarkay/eskom-calendar/releases/72143886/assets', {
-            owner: 'beyarkay',
-            repo: 'repo',
-            release_id: '72143886'
-        }).then(r => {
+            "GET /repos/beyarkay/eskom-calendar/releases/72143886/assets", {
+                owner: "beyarkay",
+                repo: "repo",
+                release_id: "72143886"
+            }).then(r => {
             setIsLoaded(true)
             const items = r.data.map((d:any) => {return {
-                label: d.name.replace(".ics", "").replace(/-/g, ' '),
+                label: d.name.replace(".ics", "").replace(/-/g, " "),
                 calId: d.id,
                 calName: d.name,
                 url: d.url,
                 dl_url: d.browser_download_url,
-            };})
+            }})
 
             setItems(items)
         }, (err) => {
@@ -83,28 +91,28 @@ function FindCalendar() {
             console.log("Error downloading release assets")
             console.log(err)
         })
-    }, []);
+    }, [])
 
     // When the calendars are collected, choose a random one of them
     React.useEffect(() => {
         setItemIdx(Math.floor(Math.random() * items.length))
-    }, [items]);
+    }, [items])
 
     // When a calendar has been selected, narrow down the schedules to just the
     // one which was selected
     React.useEffect(() => {
         if (itemIdx < items.length) {
-            const area_name = items[itemIdx]['calName'].replace(".ics", "")
+            const area_name = items[itemIdx]["calName"].replace(".ics", "")
             const events = schedules.filter(sched => sched.area_name === area_name)
-            let emojis = ["😕", "☹️", "😖", "😤", "😡", "🤬", "🔪", "☠️"];
+            const emojis = ["😕", "☹️", "😖", "😤", "😡", "🤬", "🔪", "☠️"]
 
             setEvents(events.map(e => { return {
-                title: '🔌 ' + prettifyTitle(e.area_name) + ' Stage ' + e.stage + emojis[e.stage],
+                title: "🔌 " + prettifyTitle(e.area_name) + " Stage " + e.stage + emojis[e.stage],
                 start: e.start,
                 end: e.finsh,
             }}))
         }
-    }, [items, itemIdx, schedules]);
+    }, [items, itemIdx, schedules])
 
     return (<>
         <Typography >
@@ -113,9 +121,9 @@ function FindCalendar() {
         {/* Yes this ternary is disgusting, but it'll get cleared up in a bit*/}
         { (!error && isLoaded) ? <Autocomplete
             onChange={(_event, value) => {
-                setItemIdx(items.findIndex(item => item['label'] === value.label))
+                setItemIdx(items.findIndex(item => item["label"] === value?.label))
             }}
-            isOptionEqualToValue={(option: any, value: any) => option.label === value.label}
+            isOptionEqualToValue={(option: Item, value: Item) => option.label === value.label}
             id="autocomplete-areas"
             blurOnSelect
             options={items || []}
@@ -128,25 +136,25 @@ function FindCalendar() {
             autoComplete
             autoHighlight
             renderOption={(props, option, { inputValue }) => {
-                const matches = match(option.label, inputValue, { insideWords: true });
-                const parts = parse(option.label, matches);
+                const matches = match(option.label, inputValue, { insideWords: true })
+                const parts = parse(option.label, matches)
 
                 return (
-                <li {...props}>
-                    <div>
-                    {parts.map((part, index) => (
-                        <span
-                        key={index}
-                        style={{
-                            fontWeight: part.highlight ? 700 : 400,
-                        }}
-                        >
-                        {part.text}
-                        </span>
-                    ))}
-                    </div>
-                </li>
-                );
+                    <li {...props}>
+                        <div>
+                            {parts.map((part, index) => (
+                                <span
+                                    key={index}
+                                    style={{
+                                        fontWeight: part.highlight ? 700 : 400,
+                                    }}
+                                >
+                                    {part.text}
+                                </span>
+                            ))}
+                        </div>
+                    </li>
+                )
             }}
         /> : (error ? <div>Error while loading area names</div> : <div>Loading areas...</div>)}
 
@@ -154,13 +162,13 @@ function FindCalendar() {
         2. Copy the subscription link: 
         </Typography>
         <CopyToClipboard>
-        {({ copy }) => (
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={() => copy(items[itemIdx]['dl_url'])}
-            > Copy </Button>
-        )}
+            {({ copy }) => (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => copy(items[itemIdx]["dl_url"])}
+                > Copy </Button>
+            )}
         </CopyToClipboard>
         <Typography >
         3. Enjoy your calendar:
@@ -170,7 +178,7 @@ function FindCalendar() {
             initialView="timeGridWeek"
             events={events}
         />
-    </>);
+    </>)
 }
 
 function prettifyTitle(title: string) { 
@@ -194,5 +202,5 @@ function prettifyTitle(title: string) {
 }
 
 
-export default FindCalendar;
+export default FindCalendar
 
