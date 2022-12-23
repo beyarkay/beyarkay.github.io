@@ -1,4 +1,5 @@
 import * as React from "react"
+import ErrorIcon from "@mui/icons-material/Error"
 import Autocomplete from "@mui/material/Autocomplete"
 import Button from "@mui/material/Button"
 import CopyToClipboard from "./CopyToClipboard"
@@ -111,7 +112,7 @@ function FindCalendar() {
         })
         octokit.request("GET /rate_limit", {}).then(r => {
             console.log(
-                "API Ratelimit: [", r.data.rate.remaining, "/" ,r.data.rate.limit,"] reset: ", (new Date(r.data.rate.reset*1000))
+                "API Ratelimit: [", r.data.rate.remaining, "/", r.data.rate.limit, "] reset: ", (new Date(r.data.rate.reset * 1000))
             )
         })
 
@@ -171,11 +172,13 @@ function FindCalendar() {
             {/* Yes this ternary is disgusting, but it'll get cleared up in a bit*/}
             {(!error && isLoaded) ? <Autocomplete
                 onChange={(_event, value) => {
-                    setItemIdx(items.findIndex(item => item["label"] === value?.label))
+                    setItemIdx(prevItemIdx => {
+                        return value ? items.findIndex(item => item["label"] === value?.label) : prevItemIdx
+                    })
                     // TODO check the URLSearchParams and set the autocomplete to
                     // that value if it's set
                     const params = new URLSearchParams(location.search)
-                    params.set("area_name", items[itemIdx].calName.replace(".ics",""))
+                    params.set("area_name", items[itemIdx].calName.replace(".ics", ""))
                     window.history.replaceState(
                         {}, "", `${location.pathname}?${params.toString()}`
                     )
@@ -212,7 +215,7 @@ function FindCalendar() {
                         </li>
                     )
                 }}
-            /> : (error ? <div>Error while loading area names</div> : <div>Loading areas...</div>)}
+            /> : (error ? <><ErrorIcon /><div>Error while loading area names</div></> : <div>Loading areas...</div>)}
             <Typography >
                 2. Enjoy your calendar:
             </Typography>
