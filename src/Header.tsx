@@ -1,7 +1,7 @@
 import * as React from "react"
 import Box from "@mui/material/Box"
 import Typography from "@mui/material/Typography"
-import {Stack, SvgIcon} from "@mui/material"
+import {SvgIcon} from "@mui/material"
 
 function Header() {
     return (<>
@@ -13,7 +13,7 @@ function Header() {
             <HomeIcon/>
         </Box>
         <Typography variant="subtitle1" align="center">
-            Eskom loadshedding schedules in your digital calendar
+            Eskom loadshedding schedules in your digital calendar.
         </Typography>
     </>)
 }
