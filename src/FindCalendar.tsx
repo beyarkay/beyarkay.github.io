@@ -183,24 +183,24 @@ function FindCalendar() {
     </>)
 }
 
-function prettifyTitle(title: string) { 
+function prettifyTitle(title: string) {
     return title
-        .replace("city-of-cape-town", "Cape Town")
-        .replace("eastern-cape-", "EC")
-        .replace("free-state-", "FS")
-        .replace("kwazulu-natal-", "KZN")
-        .replace("limpopo-", "LP")
-        .replace("mpumalanga-", "MP")
-        .replace("north-west-", "NC")
-        .replace("northern-cape-", "NW")
-        .replace("western-cape-", "WC")
-        .replace("gauteng-ekurhuleni-block", "Ekurhuleni")
-        .replace("gauteng-tshwane-group", "Tshwane")
         .replaceAll("-", " ")
         .replace(
             /\w\S*/g,
             txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
         )
+        .replace("City Of Cape Town", "Cape Town")
+        .replace("Eastern Cape", "EC")
+        .replace("Free State", "FS")
+        .replace("Kwazulu Natal", "KZN")
+        .replace("Limpopo", "LP")
+        .replace("Mpumalanga", "MP")
+        .replace("North West", "NC")
+        .replace("Northern Cape", "NW")
+        .replace("Western Cape", "WC")
+        .replace("Gauteng Ekurhuleni Block", "Ekurhuleni")
+        .replace("Gauteng Tshwane Group", "Tshwane")
 }
 
 
