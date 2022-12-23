@@ -17,12 +17,12 @@ function App() {
 
     return (<>
         <Header />
+        {view === "findCalendar" ? <FindCalendar /> : <MakePullRequest />}
         <Typography variant="subtitle2" align="center">
             <Link onClick={setViewOnClick}>
                 {view === "findCalendar" ? "make pull request" : " find your calendar"}
             </Link>
         </Typography>
-        {view === "findCalendar" ? <FindCalendar /> : <MakePullRequest />}
     </>)
 }
 
