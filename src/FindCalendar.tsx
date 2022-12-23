@@ -164,33 +164,6 @@ function FindCalendar() {
     }, [items, itemIdx, schedules])
 
     return (<>
-<<<<<<< HEAD
-        <Typography >
-        1. Find your location
-        </Typography>
-        {/* Yes this ternary is disgusting, but it'll get cleared up in a bit*/}
-        { (!error && isLoaded) ? <Autocomplete
-            onChange={(_event, value) => {
-                setItemIdx( prevItemIdx => {
-                    return value ? items.findIndex(item => item["label"] === value?.label) : prevItemIdx
-                })
-            }}
-            isOptionEqualToValue={(option: Item, value: Item) => option.label === value.label}
-            id="autocomplete-areas"
-            blurOnSelect
-            options={items || []}
-            defaultValue={(items || [])[itemIdx]}
-            value={(items || [])[itemIdx]}
-            renderInput={(params) => <TextField {...params} />}
-            includeInputInList
-            size="small"
-            sx={{ width: 300 }}
-            autoComplete
-            autoHighlight
-            renderOption={(props, option, { inputValue }) => {
-                const matches = match(option.label, inputValue, { insideWords: true })
-                const parts = parse(option.label, matches)
-=======
         <Container maxWidth="lg">
             <Typography >
                 1. Find your location
@@ -221,7 +194,6 @@ function FindCalendar() {
                 renderOption={(props, option, {inputValue}) => {
                     const matches = match(option.label, inputValue, {insideWords: true})
                     const parts = parse(option.label, matches)
->>>>>>> 042eb24 (Make findcalendar functional)
 
                     return (
                         <li {...props}>
