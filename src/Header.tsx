@@ -13,7 +13,7 @@ function Header() {
             <HomeIcon/>
         </Box>
         <Typography variant="subtitle1" align="center">
-            Eskom loadshedding schedules in your digital calendar.
+            Eskom loadshedding in your digital calendar
         </Typography>
     </>)
 }

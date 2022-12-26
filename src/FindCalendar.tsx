@@ -3,14 +3,14 @@ import ErrorIcon from "@mui/icons-material/Error"
 import Autocomplete from "@mui/material/Autocomplete"
 import Button from "@mui/material/Button"
 import CopyToClipboard from "./CopyToClipboard"
-import FullCalendar from "@fullcalendar/react"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
+import FullCalendar from "@fullcalendar/react"
 import dayGridPlugin from "@fullcalendar/daygrid"
 import iCalendarPlugin from "@fullcalendar/icalendar"
+import timeGridPlugin from "@fullcalendar/timegrid"
 import match from "autosuggest-highlight/match"
 import parse from "autosuggest-highlight/parse"
-import timeGridPlugin from "@fullcalendar/timegrid"
 import {Octokit} from "@octokit/core"
 import {RequestParameters} from "@octokit/core/dist-types/types"
 import {Container} from "@mui/material"
@@ -41,11 +41,9 @@ function FindCalendar() {
     const [error, setError] = React.useState(null)
     const [isLoaded, setIsLoaded] = React.useState(false)
     const [items, setItems] = React.useState<Item[]>([])
-    const [itemIdx, setItemIdx] = React.useState(0)
+    const [selectedAreaName, setSelectedAreaName] = React.useState<string | undefined>(undefined)
     const [events, setEvents] = React.useState<Event[]>([])
     const [schedules, setSchedules] = React.useState<Schedule[]>([])
-    const [pageNumber, setPageNumber] = React.useState(0)
-    const [pagesRemaining, setPagesRemaining] = React.useState(true)
 
     // Load in the ICS data
     React.useEffect(() => {
@@ -68,7 +66,6 @@ function FindCalendar() {
             })
     }, [])
 
-
     // Get the list of calendars
     React.useEffect(() => {
         const getReleaseAssets = (contents: RequestParameters) => {
@@ -80,7 +77,6 @@ function FindCalendar() {
                     ...contents
                 }).then(r => {
                 if (r.data.length == 0) {
-                    setPagesRemaining(false)
                     console.log("End of pages ", items.length, " items")
                 } else {
                     const newItems = r.data.map((d: any) => {
@@ -102,7 +98,6 @@ function FindCalendar() {
             }, (err) => {
                 setIsLoaded(false)
                 setError(err)
-                setPagesRemaining(false)
                 console.log("Error downloading area names")
                 console.log(err)
             })
@@ -110,6 +105,7 @@ function FindCalendar() {
         const octokit = new Octokit({
             auth: process.env.GH_PAGES_ENV_PAT || process.env.GH_PAGES_PAT
         })
+        console.log(process.env.GH_PAGES_ENV_PAT || process.env.GH_PAGES_PAT)
         octokit.request("GET /rate_limit", {}).then(r => {
             console.log(
                 "API Ratelimit: [", r.data.rate.remaining, "/", r.data.rate.limit, "] reset: ", (new Date(r.data.rate.reset * 1000))
@@ -118,7 +114,6 @@ function FindCalendar() {
 
         // console.log(process.env.GH_PAGES_ENV_PAT)
         for (let i = 0; i < 5; i++) {
-            setPageNumber(i)
             getReleaseAssets({
                 per_page: 100,
                 page: i,
@@ -130,30 +125,26 @@ function FindCalendar() {
 
     // When the calendars are collected, choose a random one of them
     React.useEffect(() => {
+        // Check the search params. If Area Name is provided, then use that
+        // one. If it's not provided, just choose a random one
         const params = new URLSearchParams(location.search)
         const area_name = params.get("area_name")
-        const idx = items.findIndex(item => item["calName"] === area_name)
-        // TODO this doesn't work properly
-        if (area_name !== null && idx >= 0) {
-            setItemIdx(idx)
-        } else {
-            setItemIdx(Math.floor(Math.random() * items.length))
+        if (area_name !== null) {
+            setSelectedAreaName(area_name)
+        } else if (items.length > 0) {
+            setSelectedAreaName(items[Math.floor(Math.random() * items.length)].calName.replace(".ics", ""))
         }
     }, [items])
 
+    const selectedArea = items.find(item => item.calName === selectedAreaName)
     // When a calendar has been selected, narrow down the schedules to just the
     // one which was selected
     React.useEffect(() => {
-        if (itemIdx < items.length) {
-            const area_name = items[itemIdx]["calName"].replace(".ics", "")
-            const events = schedules.filter(sched => sched.area_name === area_name)
-            const emojis = ["💡", "☹️", "😖", "😤", "😡", "🤬", "🔪", "☠️", "⚰️"]
-            const params = new URLSearchParams(location.search)
-            params.set("area_name", area_name)
-            window.history.replaceState(
-                {}, "", `${location.pathname}?${params.toString()}`
+        if (selectedArea !== undefined) {
+            const events = schedules.filter(
+                sched => sched.area_name === selectedAreaName
             )
-
+            const emojis = ["💡", "☹️", "😖", "😤", "😡", "🤬", "🔪", "☠️", "⚰️"]
             setEvents(events.map(e => {
                 return {
                     title: "🔌 " + prettifyTitle(e.area_name) + " Stage " + e.stage + emojis[e.stage],
@@ -162,33 +153,40 @@ function FindCalendar() {
                 }
             }))
         }
-    }, [items, itemIdx, schedules])
+    }, [items, schedules])
 
+    // If the selected area gets updated, also update the search params
+    React.useEffect(() => {
+        const params = new URLSearchParams(location.search)
+        if (selectedAreaName !== undefined) {
+            params.set("area_name", selectedAreaName.replace(".ics", ""))
+        } else {
+            params.delete("area_name")
+        }
+        window.history.replaceState(
+            {}, "", `${location.pathname}?${params.toString()}`
+        )
+    }, [selectedAreaName])
     return (<>
         <Container maxWidth="lg">
             <Typography >
                 1. Find your location
             </Typography>
+            <div>{selectedAreaName}</div>
             {/* Yes this ternary is disgusting, but it'll get cleared up in a bit*/}
             {(!error && isLoaded) ? <Autocomplete
-                onChange={(_event, value) => {
-                    setItemIdx(prevItemIdx => {
-                        return value ? items.findIndex(item => item["label"] === value?.label) : prevItemIdx
-                    })
-                    // TODO check the URLSearchParams and set the autocomplete to
-                    // that value if it's set
-                    const params = new URLSearchParams(location.search)
-                    params.set("area_name", items[itemIdx].calName.replace(".ics", ""))
-                    window.history.replaceState(
-                        {}, "", `${location.pathname}?${params.toString()}`
-                    )
+                onChange={(_event, new_value) => {
+                    setSelectedAreaName(items.find(
+                        item => item["label"] === new_value?.label
+                    )?.calName.replace(".ics", ""))
+                    console.log(new_value)
                 }}
                 isOptionEqualToValue={(option: Item, value: Item) => option.label === value.label}
                 id="autocomplete-areas"
                 blurOnSelect
                 options={items || []}
-                defaultValue={(items || [])[itemIdx]}
-                value={(items || [])[itemIdx]}
+                defaultValue={selectedArea}
+                value={selectedArea}
                 renderInput={(params) => <TextField {...params} />}
                 includeInputInList
                 size="small"
@@ -235,7 +233,12 @@ function FindCalendar() {
                     <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => copy(items[itemIdx]["dl_url"])}
+                        onClick={() => {
+                            const selectedItem = items.find(item => item.calName == selectedAreaName)
+                            if (selectedItem !== undefined) {
+                                copy(selectedItem["dl_url"])
+                            }
+                        }}
                     > Copy </Button>
                 )}
             </CopyToClipboard>

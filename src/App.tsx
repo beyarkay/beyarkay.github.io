@@ -2,6 +2,7 @@ import "./App.css"
 import * as React from "react"
 import Container from "@mui/material/Container"
 import FindCalendar from "./FindCalendar"
+import FindCalendar2 from "./FindCalendar2"
 import Header from "./Header"
 import MakePullRequest from "./MakePullRequest"
 import {Link, Typography} from "@mui/material"
@@ -17,7 +18,7 @@ function App() {
 
     return (<>
         <Header />
-        {view === "findCalendar" ? <FindCalendar /> : <MakePullRequest />}
+        {view === "findCalendar" ? <FindCalendar2 /> : <MakePullRequest />}
         <Typography variant="subtitle2" align="center">
             <Link onClick={setViewOnClick}>
                 {view === "findCalendar" ? "make pull request" : " find your calendar"}
