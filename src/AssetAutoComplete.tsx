@@ -1,6 +1,7 @@
 import * as React from "react"
-import {Autocomplete, TextField} from "@mui/material"
+import {Autocomplete, Box, TextField} from "@mui/material"
 import {ReleaseAsset, Result} from "./FindCalendar2"
+import AutocompleteOption from "./AutocompleteOption"
 
 
 type AssetAutoCompleteProps = {
@@ -16,6 +17,7 @@ function AssetAutoComplete({result, onChange}: AssetAutoCompleteProps) {
             loading={["unsent", "loading"].includes(result.state)}
             options={result.state === "ready" ? result.content : []}
             renderInput={(params) => <TextField {...params} />}
+            renderOption={(props, option) => <AutocompleteOption state={{}} props={props} option={option}/>}
             getOptionLabel={option => option.name}
             onChange={onChange}
         />
