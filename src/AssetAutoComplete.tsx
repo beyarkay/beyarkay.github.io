@@ -17,7 +17,7 @@ function AssetAutoComplete({result, onChange}: AssetAutoCompleteProps) {
             loading={["unsent", "loading"].includes(result.state)}
             options={result.state === "ready" ? result.content : []}
             renderInput={(params) => <TextField {...params} />}
-            renderOption={(props, option) => <AutocompleteOption state={{}} props={props} option={option}/>}
+            renderOption={(props, option, state) => <AutocompleteOption state={state} props={props} option={option}/>}
             getOptionLabel={option => option.name}
             onChange={onChange}
         />

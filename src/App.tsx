@@ -1,29 +1,22 @@
 import "./App.css"
 import * as React from "react"
-import Container from "@mui/material/Container"
-import FindCalendar from "./FindCalendar"
-import FindCalendar2 from "./FindCalendar2"
-import Header from "./Header"
 import MakePullRequest from "./MakePullRequest"
-import {Link, Typography} from "@mui/material"
-
-type View = "findCalendar" | "makePullRequest";
+import {Navigate, Route, Routes} from "react-router"
+import Home from "./Home"
+import About from "./About"
+import NotFound from "./NotFound"
+import EskomCalendar from "./EskomCalendar"
 
 function App() {
-    const [view, setView] = React.useState<View>("findCalendar")
-
-    const setViewOnClick = () => setView(
-        view === "findCalendar" ? "makePullRequest" : "findCalendar"
-    )
-
     return (<>
-        <Header />
-        {view === "findCalendar" ? <FindCalendar2 /> : <MakePullRequest />}
-        <Typography variant="subtitle2" align="center">
-            <Link onClick={setViewOnClick}>
-                {view === "findCalendar" ? "make pull request" : " find your calendar"}
-            </Link>
-        </Typography>
+        <Routes>
+            <Route path="/" element={ <Navigate to="/ec" /> } />
+            <Route path="/home" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/ec" element={<EskomCalendar />} />
+            <Route path="/ec/pr" element={<MakePullRequest />} />
+            <Route path="*" element={<NotFound />} />
+        </Routes>
     </>)
 }
 
