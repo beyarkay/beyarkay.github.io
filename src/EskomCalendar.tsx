@@ -6,9 +6,9 @@ import dayGridPlugin from "@fullcalendar/daygrid"
 import iCalendarPlugin from "@fullcalendar/icalendar"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import { Octokit } from "@octokit/core"
-import {Container, Typography} from "@mui/material"
+import {Box, Container, Typography} from "@mui/material"
 
-const DEBUG = false
+const DEBUG = true
 
 export type Result<T, E>
     = { state: "unsent" }
@@ -146,7 +146,6 @@ function EskomCalendar() {
 
     if (events.state === "unsent") {
         downloadMachineFriendly().then(newEvents => {
-            console.table(newEvents)
             setEvents({
                 state: "ready",
                 content: newEvents,
@@ -169,29 +168,50 @@ function EskomCalendar() {
             <AssetAutoComplete 
                 result={assets} 
                 onChange={(_event, value) => {
-                    console.log(_event, value)
                     setSelectedAsset(value ?? undefined)
-                    if (events.state === "ready") {
-                        console.log(events.content
-                            .filter(event => event.area_name === value?.name.replace(".ics", ""))
-                        )
-                    } else {
-                        console.log(events)
-                    }
                 }}
             />
             <Typography > 2. Enjoy your calendar: </Typography>
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, iCalendarPlugin]}
-                initialView="timeGridWeek"
-                editable={true}
+                initialView={"timeGridWeek"} // days along the x-axis, time along the y-axis
+                height={500}
+                nowIndicator={true} // Show a horizontal bar for the current time
+                allDaySlot={false} // do not give any space for all-day events
+                headerToolbar={{
+                    start: "title",
+                    center: "timeGridWeek,dayGridMonth",
+                    end: "today prev,next"
+                }}
+                slotLabelFormat={{
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false
+                }}
+                dayHeaderFormat={{
+                    weekday: "short",
+                    month: "short", 
+                    day: "2-digit",
+                }}
+                eventTimeFormat={{
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false
+                }}
+                titleFormat={{
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                }}
                 events={events.state == "ready" ? events.content
                     .filter(event => event.area_name === selectedAsset?.name.replace(".ics", ""))
-                    .map(event => ({
-                        title: `Stage ${event.stage} (${event.area_name})`,
-                        start: event.start,
-                        finsh: event.finsh,
-                    })) : []}
+                    .map(event => {
+                        return {
+                            title: `🔌 Stage ${event.stage} (${event.area_name})`,
+                            start: event.start,
+                            end: event.finsh,
+                            allDay: false,
+                        }}) : []}
             />
         </Container>
     </>)
