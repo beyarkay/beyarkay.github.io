@@ -15,6 +15,7 @@ function AssetAutoComplete({result, onChange}: AssetAutoCompleteProps) {
             isOptionEqualToValue={(option: ReleaseAsset, value: ReleaseAsset) => option.label === value.label }
             id="autocomplete-assets"
             loading={["unsent", "loading"].includes(result.state)}
+            blurOnSelect={true}
             options={result.state === "ready" ? result.content : []}
             renderInput={(params) => <TextField {...params} />}
             renderOption={(props, option, state) => <AutocompleteOption state={state} props={props} option={option}/>}
