@@ -251,12 +251,42 @@ function EskomCalendar() {
                     .filter(event => event.area_name === selectedAsset?.name.replace(".ics", ""))
                     .map(event => {
                         return {
-                            title: `🔌 Stage ${event.stage} (${event.area_name})`,
+                            title: `🔌 Stage ${event.stage} (${prettifyName(event.area_name)})`,
                             start: event.start,
                             end: event.finsh,
                             allDay: false,
                         }}) : []}
             />
+            { selectedAsset === null
+                ? undefined
+                : <>
+                    <Typography > 3. Share the loadshedding schedule for {prettifyName(selectedAsset.name)} with your friends: </Typography>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                            window.open(
+                                `https://api.whatsapp.com/send?text=Check%20out%20loadshedding%20schedules%20for%20${prettifyName(selectedAsset.name)}%20for%20free%20online%20with%20eskom-calendar:%20${window.location}`,
+                                "_blank"
+                            )
+                        }}
+                    > Share via WhatsApp </Button>
+                    <Typography > 4. If you subscribe to the calendar feed for
+                        {" "}{prettifyName(selectedAsset.name)} then you&apos;ll be kept
+                        up-to-date as new loadshedding is announced. Copy the link
+                        below and paste it into your calendar app:
+                    </Typography>
+                    <CopyToClipboard>
+                        {({copy}) => (
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => { copy(selectedAsset.browser_download_url) }}
+                            > Copy </Button>
+                        )}
+                    </CopyToClipboard>
+                </>
+            }
         </Container>
     </>)
 }
