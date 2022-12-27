@@ -6,8 +6,9 @@ import dayGridPlugin from "@fullcalendar/daygrid"
 import iCalendarPlugin from "@fullcalendar/icalendar"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import { Octokit } from "@octokit/core"
-import {Container, Typography} from "@mui/material"
+import {Button, Container, Typography} from "@mui/material"
 import {useSearchParams} from "react-router-dom"
+import CopyToClipboard from "./CopyToClipboard"
 
 const DEBUG = true
 
@@ -215,9 +216,9 @@ function EskomCalendar() {
             />
             <Typography > 2. Enjoy your calendar: </Typography>
             {
-                events.state == "ready" && selectedAsset !== undefined && events.content.filter(event => event.area_name === selectedAsset?.name.replace(".ics", "")).length > 0
+                events.state == "ready"  && events.content.filter(event => event.area_name === selectedAsset?.name.replace(".ics", "")).length > 0
                     ? undefined
-                    : <Typography >(There&apos;s no loadshedding scheduled for {prettifyName(selectedAsset?.name || "the selected area")})</Typography>
+                    : (selectedAsset === null ? undefined : <Typography >(There&apos;s no loadshedding scheduled for {prettifyName(selectedAsset?.name || "the selected area")})</Typography>)
             }
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, iCalendarPlugin]}
