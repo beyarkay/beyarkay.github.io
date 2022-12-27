@@ -1,7 +1,6 @@
 import {Box} from "@mui/material"
 import * as React from "react"
-import {ReleaseAsset} from "./FindCalendar2"
-
+import { ReleaseAsset, prettifyName} from "./EskomCalendar"
 type AutocompleteOptionProps = {
     props: object,
     option: ReleaseAsset,

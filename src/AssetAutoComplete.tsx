@@ -1,6 +1,6 @@
 import * as React from "react"
 import {Autocomplete, TextField} from "@mui/material"
-import {ReleaseAsset, Result} from "./FindCalendar2"
+import {prettifyName, ReleaseAsset, Result} from "./EskomCalendar"
 import AutocompleteOption from "./AutocompleteOption"
 
 
