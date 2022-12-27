@@ -1,5 +1,5 @@
 import * as React from "react"
-import {Autocomplete, Box, TextField} from "@mui/material"
+import {Autocomplete, TextField} from "@mui/material"
 import {ReleaseAsset, Result} from "./FindCalendar2"
 import AutocompleteOption from "./AutocompleteOption"
 

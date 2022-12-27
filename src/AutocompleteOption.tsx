@@ -8,7 +8,7 @@ type AutocompleteOptionProps = {
     state: object
 };
 
-function AutocompleteOption({props, state, option}: AutocompleteOptionProps) {
+function AutocompleteOption({props, option}: AutocompleteOptionProps) {
     return (
         <Box key={option.id} component="li" sx={{ "& > img": { mr: 2, flexShrink: 0 } }} {...props}>
             {option.name.replaceAll("-", " ").replace(".ics", "")}
