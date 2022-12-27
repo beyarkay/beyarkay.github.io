@@ -214,17 +214,18 @@ function EskomCalendar() {
                 }}
             />
             <Typography > 2. Enjoy your calendar: </Typography>
+            {
+                events.state == "ready" && selectedAsset !== undefined && events.content.filter(event => event.area_name === selectedAsset?.name.replace(".ics", "")).length > 0
+                    ? undefined
+                    : <Typography >(There&apos;s no loadshedding scheduled for {prettifyName(selectedAsset?.name || "the selected area")})</Typography>
+            }
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, iCalendarPlugin]}
                 initialView={"timeGridWeek"} // days along the x-axis, time along the y-axis
                 height={500}
                 nowIndicator={true} // Show a horizontal bar for the current time
                 allDaySlot={false} // do not give any space for all-day events
-                headerToolbar={{
-                    start: "title",
-                    center: "timeGridWeek,dayGridMonth",
-                    end: "today prev,next"
-                }}
+                slotDuration={"01:00:00"}
                 slotLabelFormat={{
                     hour: "2-digit",
                     minute: "2-digit",
@@ -232,7 +233,7 @@ function EskomCalendar() {
                 }}
                 dayHeaderFormat={{
                     weekday: "short",
-                    month: "short", 
+                    month: "short",
                     day: "2-digit",
                 }}
                 eventTimeFormat={{
