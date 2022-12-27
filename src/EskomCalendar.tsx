@@ -6,7 +6,8 @@ import dayGridPlugin from "@fullcalendar/daygrid"
 import iCalendarPlugin from "@fullcalendar/icalendar"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import { Octokit } from "@octokit/core"
-import {Box, Container, Typography} from "@mui/material"
+import {Container, Typography} from "@mui/material"
+import {useSearchParams} from "react-router-dom"
 
 const DEBUG = true
 
@@ -61,6 +62,27 @@ export type Event = {
     source: string,
 };
 
+export function prettifyName(name: string) {
+    return name
+        .replaceAll("-", " ")
+        .replace(".ics", "")
+        .replace(
+            /\w\S*/g,
+            txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+        )
+        .replace("City Of Cape Town", "Cape Town")
+        .replace("Eastern Cape", "EC")
+        .replace("Free State", "FS")
+        .replace("Kwazulu Natal", "KZN")
+        .replace("Limpopo", "LP")
+        .replace("Mpumalanga", "MP")
+        .replace("North West", "NC")
+        .replace("Northern Cape", "NW")
+        .replace("Western Cape", "WC")
+        .replace("Gauteng Ekurhuleni Block", "Ekurhuleni")
+        .replace("Gauteng Tshwane Group", "Tshwane")
+}
+
 const getReleaseAssets = async () => {
     const octokit = new Octokit({ })
 
@@ -86,7 +108,7 @@ const getReleaseAssets = async () => {
             result = {
                 state: "ready",
                 content: [
-                    ...(result.state === "unsent" ? [] : result.content), 
+                    ...(result.state === "unsent" ? [] : result.content),
                     ...response.data
                 ],
             }
@@ -122,7 +144,7 @@ const downloadMachineFriendly = async () => {
                 finsh:  line.split(",")[2],
                 stage:  line.split(",")[3],
                 source: line.split(",")[4],
-            })) 
+            }))
             return events
         })
 }
@@ -140,9 +162,11 @@ function EskomCalendar() {
     const [events, setEvents] =
         React.useState<Result<Event[], string>>( { state: "unsent" })
     const [selectedAsset, setSelectedAsset] =
-        React.useState<ReleaseAsset | undefined>(undefined)
+        React.useState<ReleaseAsset | null>(null)
     const [assets, setAssets] =
         React.useState<Result<ReleaseAsset[], string>>( { state: "unsent" })
+    const [searchParams, setSearchParams] = useSearchParams()
+    const calendar = searchParams.get("calendar") || undefined
 
     if (events.state === "unsent") {
         downloadMachineFriendly().then(newEvents => {
@@ -155,9 +179,19 @@ function EskomCalendar() {
 
     if (assets.state === "unsent") {
         getReleaseAssets()
-            .then(newAssets => { setAssets(newAssets) })
+            .then(newAssets => {
+                if (newAssets.state === "ready") {
+                    console.log("Assets are ready")
+                    const matched = newAssets.content.filter(asset => asset.name === calendar)
+                    console.log(matched.length + " assets were matched for " + calendar)
+                    if (matched.length > 0) {
+                        setSelectedAsset(matched[0])
+                    }
+                }
+                setAssets(newAssets)
+            })
             .catch(err => setAssets({state: "error", content: err}))
-    } 
+    }
 
     React.useEffect(checkRateLimit, [])
 
@@ -165,10 +199,18 @@ function EskomCalendar() {
         <Header/>
         <Container maxWidth="lg">
             <Typography > 1. Find your location: </Typography>
-            <AssetAutoComplete 
-                result={assets} 
+            <AssetAutoComplete
+                result={assets}
+                value={selectedAsset}
                 onChange={(_event, value) => {
-                    setSelectedAsset(value ?? undefined)
+                    setSelectedAsset(value)
+                    if (value !== null) {
+                        searchParams.set("calendar", value.name)
+                        setSearchParams(searchParams)
+                    } else {
+                        searchParams.delete("calendar")
+                        setSearchParams(searchParams)
+                    }
                 }}
             />
             <Typography > 2. Enjoy your calendar: </Typography>
