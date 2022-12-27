@@ -8,7 +8,7 @@ import timeGridPlugin from "@fullcalendar/timegrid"
 import { Octokit } from "@octokit/core"
 import {Container, Typography} from "@mui/material"
 
-const DEBUG = true
+const DEBUG = false
 
 export type Result<T, E>
     = { state: "unsent" }
