@@ -271,6 +271,15 @@ function EskomCalendar() {
                             )
                         }}
                     > Share via WhatsApp </Button>
+                    <CopyToClipboard>
+                        {({copy}) => (
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => { copy(window.location) }}
+                            > Copy URL </Button>
+                        )}
+                    </CopyToClipboard>
                     <Typography > 4. If you subscribe to the calendar feed for
                         {" "}{prettifyName(selectedAsset.name)} then you&apos;ll be kept
                         up-to-date as new loadshedding is announced. Copy the link
