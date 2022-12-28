@@ -1,7 +1,6 @@
 import * as React from "react"
 import AssetAutoComplete from "./AssetAutoComplete"
 import FullCalendar from "@fullcalendar/react"
-import Header from "./Header"
 import dayGridPlugin from "@fullcalendar/daygrid"
 import iCalendarPlugin from "@fullcalendar/icalendar"
 import timeGridPlugin from "@fullcalendar/timegrid"
@@ -12,7 +11,7 @@ import CopyToClipboard from "./CopyToClipboard"
 import {Box} from "@mui/system"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 
-const DEBUG = true
+const DEBUG = false
 
 export type Result<T, E>
     = { state: "unsent" }
@@ -137,8 +136,17 @@ const getReleaseAssets = async () => {
 }
 
 const downloadMachineFriendly = async () => {
-    const id = "SuK0u"
-    return fetch(`https://dpaste.org/${id}/raw`)
+    const octokit = new Octokit({ })
+    const desc = await octokit.request("GET /repos/beyarkay/eskom-calendar/releases/72143886", {
+        owner: "beyarkay",
+        repo: "eskom-calendar",
+        release_id: "72143886"
+    }).then((res) => res.data.body)
+    const pastebin_re = /\[pastebin link\]\((https:\/\/dpaste\.org\/(\w+)\/raw)\)/gm
+    const match = desc.match(pastebin_re)
+    const url = match[0].replace("[pastebin link](", "").replace(")", "")
+    console.log(`Fetching data from ${url}`)
+    return fetch(url)
         .then(res => res.text())
         .then(newEvents => {
             const events: Event[] = newEvents.split("\n").map( line => ( {
@@ -204,7 +212,7 @@ function EskomCalendar() {
                 </Typography>
                 <Container maxWidth="md">
                     <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
-                        See the loadshedding for
+                        See the loadshedding schedule for
                     </Typography>
                     <AssetAutoComplete
                         result={assets}
