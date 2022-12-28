@@ -1,4 +1,4 @@
-import {Box} from "@mui/material"
+import {Box, Typography} from "@mui/material"
 import * as React from "react"
 import { ReleaseAsset, prettifyName} from "./EskomCalendar"
 type AutocompleteOptionProps = {
@@ -9,8 +9,14 @@ type AutocompleteOptionProps = {
 
 function AutocompleteOption({props, option}: AutocompleteOptionProps) {
     return (
-        <Box key={option.id} component="li" sx={{ "& > img": { mr: 2, flexShrink: 0 } }} {...props}>
-            {prettifyName(option.name)}
+        <Box 
+            key={option.id} 
+            component="li" 
+            {...props}
+        >
+            <Typography align="center" fontSize={20} fontFamily={"Overpass"}>
+                {prettifyName(option.name)}
+            </Typography>
         </Box>
     )
 }

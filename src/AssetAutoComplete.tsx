@@ -19,7 +19,14 @@ function AssetAutoComplete({result, value, onChange}: AssetAutoCompleteProps) {
             blurOnSelect={true}
             options={result.state === "ready" ? result.content : []}
             value={value}
-            renderInput={(params) => <TextField {...params} />}
+            renderInput={(params) => {
+                return (
+                    <TextField  {...params}
+                        variant="standard" 
+                        sx={{color: "#000"}}
+                    />
+                )
+            }}
             renderOption={(props, option, state) => <AutocompleteOption state={state} props={props} option={option}/>}
             getOptionLabel={option => prettifyName(option.name)}
             onChange={onChange}

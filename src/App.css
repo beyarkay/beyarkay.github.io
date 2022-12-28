@@ -1,0 +1,13 @@
+/* Text of the date headers */
+.fc .fc-col-header-cell-cushion {
+    color: #ECC11F;
+}
+/* Text of the time rows */
+.fc .fc-timegrid-axis-cushion, .fc .fc-timegrid-slot-label-cushion {
+    color: #ECC11F;
+}
+/* The actual events */
+.fc-timegrid-event .fc-event-main {
+    color: #ECC11F;
+    background: #26251F;
+}

@@ -6,9 +6,11 @@ import dayGridPlugin from "@fullcalendar/daygrid"
 import iCalendarPlugin from "@fullcalendar/icalendar"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import { Octokit } from "@octokit/core"
-import {Button, Container, Typography} from "@mui/material"
+import {Accordion, AccordionDetails, AccordionSummary, Button, Container, Stack, Typography} from "@mui/material"
 import {useSearchParams} from "react-router-dom"
 import CopyToClipboard from "./CopyToClipboard"
+import {Box} from "@mui/system"
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 
 const DEBUG = true
 
@@ -182,9 +184,7 @@ function EskomCalendar() {
         getReleaseAssets()
             .then(newAssets => {
                 if (newAssets.state === "ready") {
-                    console.log("Assets are ready")
                     const matched = newAssets.content.filter(asset => asset.name === calendar)
-                    console.log(matched.length + " assets were matched for " + calendar)
                     if (matched.length > 0) {
                         setSelectedAsset(matched[0])
                     }
@@ -197,106 +197,176 @@ function EskomCalendar() {
     React.useEffect(checkRateLimit, [])
 
     return (<>
-        <Header/>
-        <Container maxWidth="lg">
-            <Typography > 1. Find your location: </Typography>
-            <AssetAutoComplete
-                result={assets}
-                value={selectedAsset}
-                onChange={(_event, value) => {
-                    setSelectedAsset(value)
-                    if (value !== null) {
-                        searchParams.set("calendar", value.name)
-                        setSearchParams(searchParams)
-                    } else {
-                        searchParams.delete("calendar")
-                        setSearchParams(searchParams)
-                    }
-                }}
-            />
-            <Typography > 2. Enjoy your calendar: </Typography>
-            {
-                events.state == "ready"  && events.content.filter(event => event.area_name === selectedAsset?.name.replace(".ics", "")).length > 0
-                    ? undefined
-                    : (selectedAsset === null ? undefined : <Typography >(There&apos;s no loadshedding scheduled for {prettifyName(selectedAsset?.name || "the selected area")})</Typography>)
-            }
-            <FullCalendar
-                plugins={[dayGridPlugin, timeGridPlugin, iCalendarPlugin]}
-                initialView={"timeGridWeek"} // days along the x-axis, time along the y-axis
-                height={500}
-                nowIndicator={true} // Show a horizontal bar for the current time
-                allDaySlot={false} // do not give any space for all-day events
-                slotDuration={"01:00:00"}
-                slotLabelFormat={{
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false
-                }}
-                dayHeaderFormat={{
-                    weekday: "short",
-                    month: "short",
-                    day: "2-digit",
-                }}
-                eventTimeFormat={{
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false
-                }}
-                titleFormat={{
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                }}
-                events={events.state == "ready" ? events.content
-                    .filter(event => event.area_name === selectedAsset?.name.replace(".ics", ""))
-                    .map(event => {
-                        return {
-                            title: `🔌 Stage ${event.stage} (${prettifyName(event.area_name)})`,
-                            start: event.start,
-                            end: event.finsh,
-                            allDay: false,
-                        }}) : []}
-            />
-            { selectedAsset === null
-                ? undefined
-                : <>
-                    <Typography > 3. Share the loadshedding schedule for {prettifyName(selectedAsset.name)} with your friends: </Typography>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => {
-                            window.open(
-                                `https://api.whatsapp.com/send?text=Check%20out%20loadshedding%20schedules%20for%20${prettifyName(selectedAsset.name)}%20for%20free%20online%20with%20eskom-calendar:%20${window.location}`,
-                                "_blank"
-                            )
-                        }}
-                    > Share via WhatsApp </Button>
-                    <CopyToClipboard>
-                        {({copy}) => (
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => { copy(window.location) }}
-                            > Copy URL </Button>
-                        )}
-                    </CopyToClipboard>
-                    <Typography > 4. If you subscribe to the calendar feed for
-                        {" "}{prettifyName(selectedAsset.name)} then you&apos;ll be kept
-                        up-to-date as new loadshedding is announced. Copy the link
-                        below and paste it into your calendar app:
+        <Box sx={{background: "#26251F"}}>
+            <Container maxWidth="md">
+                <Typography align="center" fontSize={40} fontFamily={"Martel"} color={"text.primary"}>
+                    🔌 eskom-calendar
+                </Typography>
+                <Container maxWidth="md">
+                    <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
+                        See the loadshedding for
                     </Typography>
-                    <CopyToClipboard>
-                        {({copy}) => (
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => { copy(selectedAsset.browser_download_url) }}
-                            > Copy </Button>
-                        )}
-                    </CopyToClipboard>
-                </>
-            }
-        </Container>
+                    <AssetAutoComplete
+                        result={assets}
+                        value={selectedAsset}
+                        onChange={(_event, value) => {
+                            setSelectedAsset(value)
+                            if (value !== null) {
+                                searchParams.set("calendar", value.name)
+                                setSearchParams(searchParams)
+                            } else {
+                                searchParams.delete("calendar")
+                                setSearchParams(searchParams)
+                            }
+                        }}
+                    />
+                    {
+                        events.state == "ready"  && events.content.filter(event => event.area_name === selectedAsset?.name.replace(".ics", "")).length > 0
+                            ? undefined
+                            : (selectedAsset === null ? undefined : <Typography fontFamily={"Overpass"} color={"text.primary"}>(There&apos;s no loadshedding scheduled for {prettifyName(selectedAsset?.name || "the selected area")})</Typography>)
+                    }
+                </Container>
+                <FullCalendar
+                    plugins={[dayGridPlugin, timeGridPlugin, iCalendarPlugin]}
+                    initialView={"timeGrid"} // days along the x-axis, time along the y-axis
+                    height={500}
+                    nowIndicator={true} // Show a horizontal bar for the current time
+                    allDaySlot={false} // do not give any space for all-day events
+                    slotDuration={"01:00:00"}
+                    visibleRange={(currentDate) => {
+                        // The start date is the current date, the end date is a
+                        // few days into the future
+                        const endDate = new Date(currentDate.valueOf())
+                        endDate.setDate(endDate.getDate() + 3)
+                        return { start: new Date(currentDate.valueOf()), end: endDate }
+                    }}
+                    headerToolbar={{ start: "", center: "", end: "" }} // Remove the header toolbar
+                    slotLabelFormat={{
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false
+                    }}
+                    dayHeaderFormat={{
+                        weekday: "short",
+                        month: "short",
+                        day: "2-digit",
+                    }}
+                    eventTimeFormat={{
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false
+                    }}
+                    titleFormat={{
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                    }}
+                    events={events.state == "ready" ? events.content
+                        .filter(event => event.area_name === selectedAsset?.name.replace(".ics", ""))
+                        .map(event => {
+                            return {
+                                title: `🔌 Stage ${event.stage} (${prettifyName(event.area_name)})`,
+                                start: event.start,
+                                end: event.finsh,
+                                allDay: false,
+                            }}) : []}
+                />
+                <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{py: 1, background: "#ECC11F"}}>
+                    <Box width={"25%"}>
+                        <Typography align="center" fontSize={50}>⏰</Typography>
+                        <Typography align="center" color={"background.default"}>Up-to-date</Typography>
+                    </Box>
+                    <Box width={"25%"}>
+                        <Typography align="center" fontSize={50}>🙅</Typography>
+                        <Typography align="center" color={"background.default"}>No Ads</Typography>
+                    </Box>
+                    <Box width={"25%"}>
+                        <Typography align="center" fontSize={50}>👩‍💻</Typography>
+                        <Typography align="center" color={"background.default"}>Developer Friendly</Typography>
+                    </Box>
+                </Stack>
+                <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
+                    There are many ways you can use eskom-calendar:
+                </Typography>
+                <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} >
+                        <Typography>
+                            Share {selectedAsset === null ? "this link" : "the link for " + prettifyName(selectedAsset?.name)}
+                            with your friends so they know when you&apos;ve got
+                            loadshedding:
+                        </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        { selectedAsset === null ? undefined : 
+                            <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{py: 1, background: "#ECC11F"}}>
+                                <Button
+                                    variant="contained"
+                                    sx={{background: "#26251F", color: "#F5EABA"}}
+                                    onClick={() => {
+                                        window.open(
+                                            `https://api.whatsapp.com/send?text=Check%20out%20loadshedding%20schedules%20for%20${prettifyName(selectedAsset.name)}%20for%20free%20online%20with%20eskom-calendar:%20${window.location}`,
+                                            "_blank"
+                                        )
+                                    }}
+                                > Share via WhatsApp </Button>
+                                <CopyToClipboard>
+                                    {({copy}) => (
+                                        <Button
+                                            sx={{background: "#26251F", color: "#F5EABA"}}
+                                            variant="contained"
+                                            onClick={() => { copy(window.location) }}
+                                        > Copy URL </Button>
+                                    )}
+                                </CopyToClipboard>
+                            </Stack>}
+                    </AccordionDetails>
+                </Accordion>
+                <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} >
+                        <Typography>
+                            Subscribe to the  calendar feed {selectedAsset === null ? "" : "for " +  prettifyName(selectedAsset.name)} to
+                            get loadshedding in your digital calendar:
+                        </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        { selectedAsset === null 
+                            ? <Typography>You need to select a calendar first</Typography>
+                            : <CopyToClipboard>
+                                {({copy}) => (
+                                    <Button
+                                        variant="contained"
+                                        sx={{background: "#26251F", color: "#F5EABA"}}
+                                        onClick={() => { copy(selectedAsset.browser_download_url) }}
+                                    > Copy </Button>
+                                )}
+                            </CopyToClipboard>
+                        }
+                    </AccordionDetails>
+                </Accordion>
+                <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} >
+                        <Typography>Allow notifications to get an alert before loadshedding hits</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <Typography>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+                        malesuada lacus ex, sit amet blandit leo lobortis eget.
+                        </Typography>
+                    </AccordionDetails>
+                </Accordion>
+                <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} >
+                        <Typography>Use the API for free in your own apps or projects</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <Typography>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+                        malesuada lacus ex, sit amet blandit leo lobortis eget.
+                        </Typography>
+                    </AccordionDetails>
+                </Accordion>
+            </Container>
+        </Box>
     </>)
 }
 
