@@ -292,7 +292,7 @@ function EskomCalendar() {
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} >
                         <Typography>
                             Share {selectedAsset === null ? "this link" : "the link for " + prettifyName(selectedAsset?.name)}
-                            with your friends so they know when you&apos;ve got
+                            {" "}with your friends so they know when you&apos;ve got
                             loadshedding:
                         </Typography>
                     </AccordionSummary>
