@@ -221,6 +221,10 @@ function EskomCalendar() {
 
     React.useEffect(checkRateLimit, [])
 
+    const share_text = selectedAsset === null
+        ? `Check out loadshedding schedules for for free online with eskom-calendar: ${window.location}`
+        : `Check out the loadshedding schedule for ${prettifyName(selectedAsset.name)} for free online with eskom-calendar: ${window.location}`
+
     return (<>
         <Box sx={{background: "#26251F"}}>
             <Container maxWidth="md">
@@ -337,28 +341,45 @@ function EskomCalendar() {
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        { selectedAsset === null ? undefined : 
-                            <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{py: 1, background: "#ECC11F"}}>
-                                <Button
-                                    variant="contained"
-                                    sx={{background: "#26251F", color: "#F5EABA"}}
-                                    onClick={() => {
-                                        window.open(
-                                            `https://api.whatsapp.com/send?text=Check%20out%20loadshedding%20schedules%20for%20${prettifyName(selectedAsset.name)}%20for%20free%20online%20with%20eskom-calendar:%20${window.location}`,
-                                            "_blank"
-                                        )
-                                    }}
-                                > Share via WhatsApp </Button>
-                                <CopyToClipboard>
-                                    {({copy}) => (
-                                        <Button
-                                            sx={{background: "#26251F", color: "#F5EABA"}}
-                                            variant="contained"
-                                            onClick={() => { copy(window.location) }}
-                                        > Copy URL </Button>
-                                    )}
-                                </CopyToClipboard>
-                            </Stack>}
+                        <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{py: 1, background: "#ECC11F"}}>
+                            <a
+                                aria-label="Share via WhatsApp"
+                                href={`whatsapp://send?text=${share_text}`}
+                                data-action="share/whatsapp/share"
+                            >
+                                <WhatsappIcon size={48} borderRadius={10} round={false} />
+                            </a>
+                            <a
+                                aria-label="Share via Twitter"
+                                href={`https://twitter.com/intent/tweet?text=${share_text}&via=beyarkay`}
+                                data-dnt="true"
+                            >
+                                <TwitterIcon size={48} borderRadius={10} round={false}/>
+                            </a>
+                            <a
+                                aria-label="Share via Linkedin"
+                                href={"https://www.linkedin.com/sharing/share-offsite/?url=https://beyarkay.github.io"}
+                                title="Share by Linkedin"
+                            >
+                                <LinkedinIcon size={48} borderRadius={10} round={false} />
+                            </a>
+                            <a
+                                aria-label="Share via Email"
+                                href={`mailto:?subject=Advert-free loadshedding schedule online&body=${share_text}`}
+                                title="Share by Email"
+                            >
+                                <EmailIcon size={48} borderRadius={10} round={false} />
+                            </a>
+                            <CopyToClipboard>
+                                {({copy}) => (
+                                    <Button
+                                        sx={{background: "#26251F", color: "#F5EABA"}}
+                                        variant="contained"
+                                        onClick={() => { copy(window.location) }}
+                                    > <ContentCopyIcon/> {" Copy URL"} </Button>
+                                )}
+                            </CopyToClipboard>
+                        </Stack>
                     </AccordionDetails>
                 </Accordion>
                 <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
