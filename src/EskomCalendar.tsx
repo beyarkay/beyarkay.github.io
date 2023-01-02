@@ -103,7 +103,9 @@ export function prettifyName(name: string) {
 }
 
 const getReleaseAssets = async () => {
-    const octokit = new Octokit({ })
+    const octokit = new Octokit({
+        auth: process.env.GH_PAGES_ENV_PAT || process.env.GH_PAGES_PAT
+    })
 
     async function getPaginatedData(url: string) {
         const nextPattern = /(?<=<)([\S]*)(?=>; rel="Next")/i
@@ -153,7 +155,9 @@ const getReleaseAssets = async () => {
 }
 
 const downloadMachineFriendly = async () => {
-    const octokit = new Octokit({ })
+    const octokit = new Octokit({
+        auth: process.env.GH_PAGES_ENV_PAT || process.env.GH_PAGES_PAT
+    })
     const desc = await octokit.request("GET /repos/beyarkay/eskom-calendar/releases/72143886", {
         owner: "beyarkay",
         repo: "eskom-calendar",
