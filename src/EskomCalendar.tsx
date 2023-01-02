@@ -261,13 +261,16 @@ function EskomCalendar() {
                             }
                         }}
                     />
-                    {/*TODO update the conditions for this item*/}
-                    {
-                        events.state === "ready" && events.content.filter(event => event.area_name === selectedAsset?.name.replace(".ics", "")).length === 0
-                            ? <Typography fontFamily={"Overpass"} color={"text.primary"}>
-                                (There&apos;s no loadshedding scheduled for {selectedAsset !== null ? prettifyName(selectedAsset.name) : (searchParams.get("calendar") || "the selected area")})
-                            </Typography>
-                            : undefined
+                    { events.state !== "ready" || !searchParams.has("calendar")
+                        ? undefined
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        : ( searchParams.has("calendar") && events.content.map(e => e.area_name).includes(searchParams.get("calendar")!.replace(".ics", ""))
+                            ? ( events.content.filter(e => e.area_name === selectedAsset?.name.replace(".ics", "")).length === 0
+                                ? `No loadshedding for ${selectedAsset !== null ? prettifyName(selectedAsset?.name) : "the selected area"}.`
+                                : undefined
+                            )
+                            : `Could not find the loadshedding area named '${searchParams.get("calendar")}'`
+                        )
                     }
                 </Container>
                 <FullCalendar
