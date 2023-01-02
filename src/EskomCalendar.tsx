@@ -5,11 +5,26 @@ import dayGridPlugin from "@fullcalendar/daygrid"
 import iCalendarPlugin from "@fullcalendar/icalendar"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import { Octokit } from "@octokit/core"
-import {Accordion, AccordionDetails, AccordionSummary, Button, Container, Stack, Typography} from "@mui/material"
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    Button,
+    Container,
+    Stack,
+    Typography,
+} from "@mui/material"
 import {useSearchParams} from "react-router-dom"
 import CopyToClipboard from "./CopyToClipboard"
 import {Box} from "@mui/system"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
+import {
+    EmailIcon,
+    LinkedinIcon,
+    TwitterIcon,
+    WhatsappIcon,
+} from "react-share"
+import ContentCopyIcon from "@mui/icons-material/ContentCopy"
 
 // "_self" is only set if React is in development mode
 // https://stackoverflow.com/a/52857179/14555505
@@ -209,9 +224,17 @@ function EskomCalendar() {
     return (<>
         <Box sx={{background: "#26251F"}}>
             <Container maxWidth="md">
-                <Typography align="center" fontSize={40} fontFamily={"Martel"} color={"text.primary"}>
-                    🔌 eskom-calendar
-                </Typography>
+                <Stack direction="row" alignItems="center" justifyContent="space-around">
+                    <Typography align="center" fontSize={40} fontFamily={"Martel"} color={"text.primary"}>
+                        {" "}
+                    </Typography>
+                    <Typography align="center" fontSize={40} fontFamily={"Martel"} color={"text.primary"}>
+                        🔌 eskom-calendar
+                    </Typography>
+                    <a href="https://github.com/beyarkay/eskom-calendar/#readme" target={"_blank"} rel="noreferrer">
+                        <img src="github-mark-white.svg" alt="GitHub link" width="30" height="30"/>
+                    </a>
+                </Stack>
                 <Container maxWidth="md">
                     <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
                         See the loadshedding schedule for
@@ -291,8 +314,15 @@ function EskomCalendar() {
                         <Typography align="center" color={"background.default"}>No Ads</Typography>
                     </Box>
                     <Box width={"25%"}>
-                        <Typography align="center" fontSize={50}>👩‍💻</Typography>
-                        <Typography align="center" color={"background.default"}>Developer Friendly</Typography>
+                        <a
+                            href="https://github.com/beyarkay/eskom-calendar/#using-the-data-in-your-own-projects"
+                            target={"_blank"}
+                            rel="noreferrer"
+                            style={{ textDecoration:"none" }}
+                        >
+                            <Typography align="center" fontSize={50}>👩‍💻</Typography>
+                            <Typography align="center" color={"background.default"}>Developer Friendly</Typography>
+                        </a>
                     </Box>
                 </Stack>
                 <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
