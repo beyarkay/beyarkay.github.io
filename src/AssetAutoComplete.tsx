@@ -1,7 +1,8 @@
 import * as React from "react"
-import {Autocomplete, TextField} from "@mui/material"
+import {Autocomplete, CircularProgress, TextField} from "@mui/material"
 import {prettifyName, ReleaseAsset, Result} from "./EskomCalendar"
 import AutocompleteOption from "./AutocompleteOption"
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline"
 
 
 type AssetAutoCompleteProps = {
@@ -18,12 +19,35 @@ function AssetAutoComplete({result, value, onChange}: AssetAutoCompleteProps) {
             loading={["unsent", "loading"].includes(result.state)}
             blurOnSelect={true}
             options={result.state === "ready" ? result.content : []}
+            noOptionsText={"No areas"}
             value={value}
+            disabledItemsFocusable={true}
             renderInput={(params) => {
                 return (
-                    <TextField  {...params}
-                        variant="standard" 
-                        sx={{color: "#000"}}
+                    <TextField
+                        {...params}
+                        variant="standard"
+                        label={(["unsent", "loading"].includes(result.state)
+                            ? "Getting the loadshedding schedules..."
+                            : (result.state === "error"
+                                ? "Failed to get the loadshedding schedules"
+                                : "See the loadshedding schedule for..."
+                            )
+                        )}
+                        size="medium"
+                        InputProps={{
+                            ...params.InputProps,
+                            endAdornment: (<>
+                                {(["unsent", "loading"].includes(result.state)
+                                    ? <CircularProgress color="inherit" size={20} />
+                                    : (result.state === "error"
+                                        ? <ErrorOutlineIcon color="inherit"/>
+                                        : undefined
+                                    )
+                                )}
+                                {params.InputProps.endAdornment}
+                            </>),
+                        }}
                     />
                 )
             }}

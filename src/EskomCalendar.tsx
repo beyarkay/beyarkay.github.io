@@ -241,7 +241,7 @@ function EskomCalendar() {
                 </Stack>
                 <Container maxWidth="md">
                     <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
-                        See the loadshedding schedule for
+                        Advert-free loadshedding schedules, online or in your digital calendar
                     </Typography>
                     <AssetAutoComplete
                         result={assets}
@@ -257,10 +257,13 @@ function EskomCalendar() {
                             }
                         }}
                     />
+                    {/*TODO update the conditions for this item*/}
                     {
-                        events.state == "ready"  && events.content.filter(event => event.area_name === selectedAsset?.name.replace(".ics", "")).length > 0
-                            ? undefined
-                            : (selectedAsset === null ? undefined : <Typography fontFamily={"Overpass"} color={"text.primary"}>(There&apos;s no loadshedding scheduled for {prettifyName(selectedAsset?.name || "the selected area")})</Typography>)
+                        events.state === "ready" && events.content.filter(event => event.area_name === selectedAsset?.name.replace(".ics", "")).length === 0
+                            ? <Typography fontFamily={"Overpass"} color={"text.primary"}>
+                                (There&apos;s no loadshedding scheduled for {selectedAsset !== null ? prettifyName(selectedAsset.name) : (searchParams.get("calendar") || "the selected area")})
+                            </Typography>
+                            : undefined
                     }
                 </Container>
                 <FullCalendar
@@ -308,7 +311,7 @@ function EskomCalendar() {
                                 allDay: false,
                             }}) : []}
                 />
-                <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{py: 1, background: "#ECC11F"}}>
+                <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{ marginTop: 2, background: "#ECC11F"}}>
                     <Box width={"25%"}>
                         <Typography align="center" fontSize={50}>⏰</Typography>
                         <Typography align="center" color={"background.default"}>Up-to-date</Typography>
@@ -329,103 +332,100 @@ function EskomCalendar() {
                         </a>
                     </Box>
                 </Stack>
-                <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
-                    There are many ways you can use eskom-calendar:
+                <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{py: 1}}>
+                    Share {selectedAsset === null ? "the URL for this site" : "the link for " + prettifyName(selectedAsset?.name)}
+                    {" "}with your friends so they know when you&apos;ve got
+                    loadshedding:
                 </Typography>
-                <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />} >
-                        <Typography>
-                            Share {selectedAsset === null ? "the URL for this site" : "the link for " + prettifyName(selectedAsset?.name)}
-                            {" "}with your friends so they know when you&apos;ve got
-                            loadshedding:
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{py: 1, background: "#ECC11F"}}>
-                            <a
-                                aria-label="Share via WhatsApp"
-                                href={`whatsapp://send?text=${share_text}`}
-                                data-action="share/whatsapp/share"
-                            >
-                                <WhatsappIcon size={48} borderRadius={10} round={false} />
-                            </a>
-                            <a
-                                aria-label="Share via Twitter"
-                                href={`https://twitter.com/intent/tweet?text=${share_text}&via=beyarkay`}
-                                data-dnt="true"
-                            >
-                                <TwitterIcon size={48} borderRadius={10} round={false}/>
-                            </a>
-                            <a
-                                aria-label="Share via Linkedin"
-                                href={"https://www.linkedin.com/sharing/share-offsite/?url=https://beyarkay.github.io"}
-                                title="Share by Linkedin"
-                            >
-                                <LinkedinIcon size={48} borderRadius={10} round={false} />
-                            </a>
-                            <a
-                                aria-label="Share via Email"
-                                href={`mailto:?subject=Advert-free loadshedding schedule online&body=${share_text}`}
-                                title="Share by Email"
-                            >
-                                <EmailIcon size={48} borderRadius={10} round={false} />
-                            </a>
-                            <CopyToClipboard>
-                                {({copy}) => (
-                                    <Button
-                                        sx={{background: "#26251F", color: "#F5EABA"}}
-                                        variant="contained"
-                                        onClick={() => { copy(window.location) }}
-                                    > <ContentCopyIcon/> {" Copy URL"} </Button>
-                                )}
-                            </CopyToClipboard>
-                        </Stack>
-                    </AccordionDetails>
-                </Accordion>
-                <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />} >
-                        <Typography>
+                <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{py: 1}}>
+                    <a
+                        aria-label="Share via WhatsApp"
+                        href={`whatsapp://send?text=${share_text}`}
+                        data-action="share/whatsapp/share"
+                    >
+                        <WhatsappIcon size={48} borderRadius={10} round={false} />
+                    </a>
+                    <a
+                        aria-label="Share via Twitter"
+                        href={`https://twitter.com/intent/tweet?text=${share_text}&via=beyarkay`}
+                        data-dnt="true"
+                    >
+                        <TwitterIcon size={48} borderRadius={10} round={false}/>
+                    </a>
+                    <a
+                        aria-label="Share via Linkedin"
+                        href={"https://www.linkedin.com/sharing/share-offsite/?url=https://beyarkay.github.io"}
+                        title="Share by Linkedin"
+                    >
+                        <LinkedinIcon size={48} borderRadius={10} round={false} />
+                    </a>
+                    <a
+                        aria-label="Share via Email"
+                        href={`mailto:?subject=Advert-free loadshedding schedule online&body=${share_text}`}
+                        title="Share by Email"
+                    >
+                        <EmailIcon size={48} borderRadius={10} round={false} />
+                    </a>
+                    <CopyToClipboard>
+                        {({copy}) => (
+                            <Button
+                                sx={{color: "#26251F", background: "#F5EABA"}}
+                                variant="contained"
+                                onClick={() => { copy(window.location) }}
+                            > <ContentCopyIcon/> {" Copy URL"} </Button>
+                        )}
+                    </CopyToClipboard>
+                </Stack>
+                { selectedAsset === null
+                    ? <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{py: 1}}>
+                        As the name suggests, eskom-calendar provides a
+                        calendar subscription link. Select an area above
+                        and a button to copy the link will appear here.
+                    </Typography>
+                    : <>
+                        <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{py: 1}}>
                             Subscribe to the  calendar feed {selectedAsset === null ? "" : "for " +  prettifyName(selectedAsset.name)} to
                             get loadshedding in your digital calendar:
                         </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        { selectedAsset === null
-                            ? <Typography>You need to select a calendar first.</Typography>
-                            : <CopyToClipboard>
-                                {({copy}) => (
+                        <CopyToClipboard>
+                            {({copy}) => (
+                                <Stack alignItems="center" justifyContent="space-evenly">
                                     <Button
                                         variant="contained"
-                                        sx={{background: "#26251F", color: "#F5EABA"}}
+                                        sx={{color: "#26251F", background: "#F5EABA", marginBottom: 10}}
                                         onClick={() => { copy(selectedAsset.browser_download_url) }}
                                     > <ContentCopyIcon/> {" Copy calendar feed"} </Button>
-                                )}
-                            </CopyToClipboard>
-                        }
-                    </AccordionDetails>
-                </Accordion>
-                <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />} >
-                        <Typography>Allow notifications to get an alert before loadshedding hits</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Typography>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                        malesuada lacus ex, sit amet blandit leo lobortis eget.
-                        </Typography>
-                    </AccordionDetails>
-                </Accordion>
-                <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />} >
-                        <Typography>Use the API for free in your own apps or projects</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Typography>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                        malesuada lacus ex, sit amet blandit leo lobortis eget.
-                        </Typography>
-                    </AccordionDetails>
-                </Accordion>
+                                </Stack>
+                            )}
+                        </CopyToClipboard>
+                    </>
+                }
+                {/* TODO: add in notifications and API explanaitons*/}
+                {/* eslint-disable-next-line no-constant-condition */}
+                {true ? undefined : <>
+                    <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} >
+                            <Typography>Allow notifications to get an alert before loadshedding hits</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Typography>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+                            malesuada lacus ex, sit amet blandit leo lobortis eget.
+                            </Typography>
+                        </AccordionDetails>
+                    </Accordion>
+                    <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} >
+                            <Typography>Use the API for free in your own apps or projects</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Typography>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+                            malesuada lacus ex, sit amet blandit leo lobortis eget.
+                            </Typography>
+                        </AccordionDetails>
+                    </Accordion>
+                </>}
             </Container>
         </Box>
     </>)

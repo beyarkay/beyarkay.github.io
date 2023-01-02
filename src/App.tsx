@@ -14,7 +14,7 @@ function App() {
         palette: {
             background: {
                 default: "#26251F",
-                paper: "#F5EABA",
+                paper: "#26251F",
             },
             text: {
                 primary: "#ECC11F",

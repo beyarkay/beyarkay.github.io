@@ -9,12 +9,16 @@ type AutocompleteOptionProps = {
 
 function AutocompleteOption({props, option}: AutocompleteOptionProps) {
     return (
-        <Box 
-            key={option.id} 
-            component="li" 
+        <Box
+            key={option.id}
+            component="li"
             {...props}
         >
-            <Typography align="center" fontSize={20} fontFamily={"Overpass"}>
+            <Typography
+                align="center"
+                fontSize={20}
+                fontFamily={"Overpass"}
+            >
                 {prettifyName(option.name)}
             </Typography>
         </Box>
