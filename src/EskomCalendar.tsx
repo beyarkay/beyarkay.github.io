@@ -315,7 +315,7 @@ function EskomCalendar() {
                     </Box>
                     <Box width={"25%"}>
                         <Typography align="center" fontSize={50}>🙅</Typography>
-                        <Typography align="center" color={"background.default"}>No Ads</Typography>
+                        <Typography align="center" color={"background.default"}>Advert-free</Typography>
                     </Box>
                     <Box width={"25%"}>
                         <a
@@ -335,7 +335,7 @@ function EskomCalendar() {
                 <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} >
                         <Typography>
-                            Share {selectedAsset === null ? "this link" : "the link for " + prettifyName(selectedAsset?.name)}
+                            Share {selectedAsset === null ? "the URL for this site" : "the link for " + prettifyName(selectedAsset?.name)}
                             {" "}with your friends so they know when you&apos;ve got
                             loadshedding:
                         </Typography>
@@ -390,15 +390,15 @@ function EskomCalendar() {
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        { selectedAsset === null 
-                            ? <Typography>You need to select a calendar first</Typography>
+                        { selectedAsset === null
+                            ? <Typography>You need to select a calendar first.</Typography>
                             : <CopyToClipboard>
                                 {({copy}) => (
                                     <Button
                                         variant="contained"
                                         sx={{background: "#26251F", color: "#F5EABA"}}
                                         onClick={() => { copy(selectedAsset.browser_download_url) }}
-                                    > Copy </Button>
+                                    > <ContentCopyIcon/> {" Copy calendar feed"} </Button>
                                 )}
                             </CopyToClipboard>
                         }
