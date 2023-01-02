@@ -2,6 +2,7 @@ import * as React from "react"
 import {Autocomplete, CircularProgress, TextField} from "@mui/material"
 import {prettifyName, ReleaseAsset, Result} from "./EskomCalendar"
 import AutocompleteOption from "./AutocompleteOption"
+import { createFilterOptions } from "@mui/material/Autocomplete"
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline"
 
 
@@ -22,6 +23,13 @@ function AssetAutoComplete({result, value, onChange}: AssetAutoCompleteProps) {
             noOptionsText={"No areas"}
             value={value}
             disabledItemsFocusable={true}
+            filterOptions={ createFilterOptions({
+                stringify: (asset) => { return (
+                    asset.name + " " 
+                    + asset.name.replace(".ics", "").replaceAll("-", " ") + " "
+                    + prettifyName(asset.name)
+                )},
+            })}
             renderInput={(params) => {
                 return (
                     <TextField
