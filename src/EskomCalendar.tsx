@@ -11,7 +11,9 @@ import CopyToClipboard from "./CopyToClipboard"
 import {Box} from "@mui/system"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 
-const DEBUG = false
+// "_self" is only set if React is in development mode
+// https://stackoverflow.com/a/52857179/14555505
+const DEBUG = "_self" in React.createElement("div")
 
 export type Result<T, E>
     = { state: "unsent" }
