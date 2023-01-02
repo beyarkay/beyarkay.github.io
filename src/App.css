@@ -8,6 +8,6 @@
 }
 /* The actual events */
 .fc-timegrid-event .fc-event-main {
-    color: #ECC11F;
-    background: #26251F;
+    background: #ECC11F;
+    color: #000;
 }
