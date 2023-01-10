@@ -134,6 +134,10 @@ function MakePullRequest() {
                     start: arg.startStr,
                     finsh: arg.endStr,
                     source: source || "No source",
+                    ...(source?.toLowerCase().includes("eskom_sa")
+                        ? {exclude: "coct"}
+                        : (source?.toLowerCase().includes("cityofct") ? {include: "coct"} : {})
+                    )
                 })
             }}
             visibleRange={(currentDate) => {
