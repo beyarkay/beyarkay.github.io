@@ -399,7 +399,7 @@ function EskomCalendar() {
                                 <Stack alignItems="center" justifyContent="space-evenly">
                                     <Button
                                         variant="contained"
-                                        sx={{color: "#26251F", background: "#F5EABA", marginBottom: 10}}
+                                        sx={{color: "#26251F", background: "#F5EABA", marginBottom: 1}}
                                         onClick={() => { copy(selectedAsset.browser_download_url) }}
                                     > <ContentCopyIcon/> {" Copy calendar feed"} </Button>
                                 </Stack>
@@ -407,6 +407,40 @@ function EskomCalendar() {
                         </CopyToClipboard>
                     </>
                 }
+                <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} >
+                        <Typography>How do I add the calendar feed to Google Calendar/Outlook/Apple Calendar/etc?</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <Typography>
+                            First make sure you&apos;ve copied the subscription
+                            link for your calendar (using the &quot;Copy Calendar
+                            Feed&quot; button above).
+                        </Typography>
+                        <Typography>
+                            Now you need to open your calendar app:
+                        </Typography>
+                        <Typography>
+                            Click <a
+                                target="_blank"
+                                rel="noreferrer"
+                                href="https://calendar.google.com/calendar/u/0/r/settings/addbyurl"
+                            >here</a> if you use Google calendar
+                        </Typography>
+                        <Typography>
+                            Click <a
+                                target="_blank"
+                                rel="noreferrer"
+                                href="https://outlook.office.com/calendar/addcalendar"
+                            >here</a> if you use Outlook
+                        </Typography>
+                        <Typography>
+                            Paste the calendar feed link into the text box that
+                            pops up when you click that link, and that&apos;s
+                            it!
+                        </Typography>
+                    </AccordionDetails>
+                </Accordion>
                 {/* TODO: add in notifications and API explanaitons*/}
                 {/* eslint-disable-next-line no-constant-condition */}
                 {true ? undefined : <>
