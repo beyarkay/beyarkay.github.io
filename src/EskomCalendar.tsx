@@ -1,5 +1,4 @@
 import * as React from "react"
-import AssetAutoComplete from "./AssetAutoComplete"
 import FullCalendar from "@fullcalendar/react"
 import dayGridPlugin from "@fullcalendar/daygrid"
 import iCalendarPlugin from "@fullcalendar/icalendar"
@@ -25,6 +24,8 @@ import {
     WhatsappIcon,
 } from "react-share"
 import ContentCopyIcon from "@mui/icons-material/ContentCopy"
+import jsyaml from "js-yaml"
+import AreaAutoComplete from "./AreaAutoComplete"
 
 // "_self" is only set if React is in development mode
 // https://stackoverflow.com/a/52857179/14555505
@@ -73,6 +74,23 @@ export type ReleaseAsset = {
     browser_download_url: string
 }
 
+export type Area = {
+    name: string,
+    lat_lngs: number[][]
+}
+
+export type AreaMetadata = {
+    calendar_name: string,
+    province: string,
+    municipality: string,
+    city: string,
+    provider: string,
+    source: string,
+    source_info: string,
+    areas: Area[],
+};
+
+
 export type Event = {
     area_name: string,
     start: string,
@@ -80,6 +98,17 @@ export type Event = {
     stage: string,
     source: string,
 };
+
+function shortenProvince(province: string) {
+    return province.replace("Eastern Cape", "EC")
+        .replace("Free State", "FS")
+        .replace("Kwazulu Natal", "KZN")
+        .replace("Limpopo", "LP")
+        .replace("Mpumalanga", "MP")
+        .replace("North West", "NC")
+        .replace("Northern Cape", "NW")
+        .replace("Western Cape", "WC")
+}
 
 export function prettifyName(name: string) {
     return name
@@ -90,14 +119,6 @@ export function prettifyName(name: string) {
             txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
         )
         .replace("City Of Cape Town", "Cape Town")
-        .replace("Eastern Cape", "EC")
-        .replace("Free State", "FS")
-        .replace("Kwazulu Natal", "KZN")
-        .replace("Limpopo", "LP")
-        .replace("Mpumalanga", "MP")
-        .replace("North West", "NC")
-        .replace("Northern Cape", "NW")
-        .replace("Western Cape", "WC")
         .replace("Gauteng Ekurhuleni Block", "Ekurhuleni")
         .replace("Gauteng Tshwane Group", "Tshwane")
 }
@@ -154,6 +175,16 @@ const getReleaseAssets = async () => {
     return content
 }
 
+const downloadAreaMetadata = async() => {
+    const url = "https://raw.githubusercontent.com/beyarkay/eskom-calendar/main/area_metadata.yaml"
+    return fetch(url)
+        .then(res => res.text())
+        .then(yaml => {
+            return  (jsyaml.load(yaml) as {area_details: AreaMetadata[]})["area_details"]
+                .sort((a, b) => a.province.localeCompare(b.province))
+        })
+}
+
 const downloadMachineFriendly = async () => {
     const octokit = new Octokit({
         auth: process.env.GH_PAGES_ENV_PAT || process.env.GH_PAGES_PAT
@@ -191,6 +222,10 @@ const checkRateLimit = () => {
 }
 
 function EskomCalendar() {
+    const [areaMetadata, setAreaMetadata] =
+        React.useState<Result<AreaMetadata[], string>>( { state: "unsent" })
+    const [selectedArea, setSelectedArea] =
+        React.useState<AreaMetadata | null>(null)
     const [events, setEvents] =
         React.useState<Result<Event[], string>>( { state: "unsent" })
     const [selectedAsset, setSelectedAsset] =
@@ -223,6 +258,14 @@ function EskomCalendar() {
             .catch(err => setAssets({state: "error", content: err}))
     }
 
+    if (areaMetadata.state === "unsent") {
+        downloadAreaMetadata().then(content => {
+            setAreaMetadata({
+                state: "ready",
+                content: content,
+            })
+        }).catch(err => setAreaMetadata({state: "error", content: err}))
+    }
     React.useEffect(checkRateLimit, [])
 
     const share_text = selectedAsset === null
@@ -247,14 +290,17 @@ function EskomCalendar() {
                     <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
                         Advert-free loadshedding schedules, online or in your digital calendar
                     </Typography>
-                    <AssetAutoComplete
-                        result={assets}
-                        value={selectedAsset}
+                    <AreaAutoComplete
+                        result={areaMetadata}
+                        value={selectedArea}
                         onChange={(_event, value) => {
-                            setSelectedAsset(value)
+                            setSelectedArea(value)
                             if (value !== null) {
-                                searchParams.set("calendar", value.name)
+                                searchParams.set("calendar", value.calendar_name)
                                 setSearchParams(searchParams)
+                                if (assets.state === "ready") {
+                                    setSelectedAsset(assets.content.find(a => a.name === value.calendar_name) || null)
+                                }
                             } else {
                                 searchParams.delete("calendar")
                                 setSearchParams(searchParams)
