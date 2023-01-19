@@ -266,253 +266,253 @@ function EskomCalendar() {
             })
         }).catch(err => setAreaMetadata({state: "error", content: err}))
     }
+
     React.useEffect(checkRateLimit, [])
 
     const share_text = selectedAsset === null
         ? `Check out loadshedding schedules for for free online with eskom-calendar: ${window.location}`
         : `Check out the loadshedding schedule for ${prettifyName(selectedAsset.name)} for free online with eskom-calendar: ${window.location}`
 
+    const headerStack = (
+        <Stack direction="row" alignItems="center" justifyContent="space-around">
+            <Typography align="center" fontSize={40} fontFamily={"Martel"} color={"text.primary"}>
+                {" "}
+            </Typography>
+            <Typography align="center" fontSize={40} fontFamily={"Martel"} color={"text.primary"}>
+                🔌 eskom-calendar
+            </Typography>
+            <a href="https://github.com/beyarkay/eskom-calendar/#readme" target={"_blank"} rel="noreferrer">
+                <img src="github-mark-white.svg" alt="GitHub link" width="30" height="30"/>
+            </a>
+        </Stack>
+    )
+
+    const autocompleteStack = (
+        <Container maxWidth="md">
+            <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
+                Advert-free loadshedding schedules, online or in your digital calendar
+            </Typography>
+            <AreaAutoComplete
+                result={areaMetadata}
+                value={selectedArea}
+                onChange={(_event, value) => {
+                    setSelectedArea(value)
+                    if (value !== null) {
+                        searchParams.set("calendar", value.calendar_name)
+                        setSearchParams(searchParams)
+                        if (assets.state === "ready") {
+                            setSelectedAsset(assets.content.find(a => a.name === value.calendar_name) || null)
+                        }
+                    } else {
+                        searchParams.delete("calendar")
+                        setSearchParams(searchParams)
+                    }
+                }}
+            />
+            { events.state !== "ready" || !searchParams.has("calendar")
+                ? undefined
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                : ( searchParams.has("calendar") && events.content.map(e => e.area_name).includes(searchParams.get("calendar")!.replace(".ics", ""))
+                    ? ( events.content.filter(e => e.area_name === selectedAsset?.name.replace(".ics", "")).length === 0
+                        ? `No loadshedding for ${selectedAsset !== null ? prettifyName(selectedAsset?.name) : "the selected area"}.`
+                        : undefined
+                    )
+                    : `Could not find the loadshedding area named '${searchParams.get("calendar")}'`
+                )
+            }
+        </Container>
+    )
+
+    const calendarComponent = (
+        <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, iCalendarPlugin]}
+            initialView={"timeGrid"} // days along the x-axis, time along the y-axis
+            height={500}
+            nowIndicator={true} // Show a horizontal bar for the current time
+            allDaySlot={false} // do not give any space for all-day events
+            slotDuration={"01:00:00"}
+            visibleRange={(currentDate) => {
+                // The start date is the current date, the end date is a
+                // few days into the future
+                const endDate = new Date(currentDate.valueOf())
+                endDate.setDate(endDate.getDate() + 3)
+                return { start: new Date(currentDate.valueOf()), end: endDate }
+            }}
+            headerToolbar={{ start: "", center: "", end: "" }} // Remove the header toolbar
+            slotLabelFormat={{
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false
+            }}
+            dayHeaderFormat={{
+                weekday: "short",
+                month: "short",
+                day: "2-digit",
+            }}
+            eventTimeFormat={{
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false
+            }}
+            titleFormat={{
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+            }}
+            events={events.state == "ready" ? events.content
+                .filter(event => event.area_name === selectedAsset?.name.replace(".ics", ""))
+                .map(event => {
+                    return {
+                        title: `🔌 Stage ${event.stage} (${prettifyName(event.area_name)})`,
+                        start: event.start,
+                        end: event.finsh,
+                        allDay: false,
+                    }}) : []}
+        />
+    )
+    const iconStack = (
+        <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{ marginTop: 2, background: "#ECC11F"}}>
+            <Box width={"25%"}>
+                <Typography align="center" fontSize={50}>⏰</Typography>
+                <Typography align="center" color={"background.default"}>Up-to-date</Typography>
+            </Box>
+            <Box width={"25%"}>
+                <Typography align="center" fontSize={50}>🙅</Typography>
+                <Typography align="center" color={"background.default"}>Advert-free</Typography>
+            </Box>
+            <Box width={"25%"}>
+                <a
+                    href="https://github.com/beyarkay/eskom-calendar/#using-the-data-in-your-own-projects"
+                    target={"_blank"}
+                    rel="noreferrer"
+                    style={{ textDecoration:"none" }}
+                >
+                    <Typography align="center" fontSize={50}>👩‍💻</Typography>
+                    <Typography align="center" color={"background.default"}>Developer Friendly</Typography>
+                </a>
+            </Box>
+        </Stack>
+    )
+
+    const shareVia = ( <>
+        <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{py: 1}}>
+            Share {selectedAsset === null ? "the URL for this site" : "the link for " + prettifyName(selectedAsset?.name)}
+            {" "}with your friends so they know when you&apos;ve got
+            loadshedding:
+        </Typography>
+        <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{py: 1}}>
+            <a
+                aria-label="Share via WhatsApp"
+                href={`whatsapp://send?text=${share_text}`}
+                data-action="share/whatsapp/share"
+            >
+                <WhatsappIcon size={48} borderRadius={10} round={false} />
+            </a>
+            <a
+                aria-label="Share via Twitter"
+                href={`https://twitter.com/intent/tweet?text=${share_text}&via=beyarkay`}
+                data-dnt="true"
+            >
+                <TwitterIcon size={48} borderRadius={10} round={false}/>
+            </a>
+            <a
+                aria-label="Share via Linkedin"
+                href={"https://www.linkedin.com/sharing/share-offsite/?url=https://beyarkay.github.io"}
+                title="Share by Linkedin"
+            >
+                <LinkedinIcon size={48} borderRadius={10} round={false} />
+            </a>
+            <a
+                aria-label="Share via Email"
+                href={`mailto:?subject=Advert-free loadshedding schedule online&body=${share_text}`}
+                title="Share by Email"
+            >
+                <EmailIcon size={48} borderRadius={10} round={false} />
+            </a>
+            <CopyToClipboard>
+                {({copy}) => (
+                    <Button
+                        sx={{color: "#26251F", background: "#F5EABA"}}
+                        variant="contained"
+                        onClick={() => { copy(window.location) }}
+                    > <ContentCopyIcon/> {" Copy URL"} </Button>
+                )}
+            </CopyToClipboard>
+        </Stack>
+    </>)
+
+    const copySubscriptionLink = (selectedAsset === null
+        ? <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{py: 1}}>
+            As the name suggests, eskom-calendar provides a
+            calendar subscription link. Select an area above
+            and a button to copy the link will appear here.
+        </Typography>
+        : <>
+            <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{py: 1}}>
+                Subscribe to the  calendar feed {selectedAsset === null ? "" : "for " +  prettifyName(selectedAsset.name)} to
+                get loadshedding in your digital calendar:
+            </Typography>
+            <CopyToClipboard>
+                {({copy}) => (
+                    <Stack alignItems="center" justifyContent="space-evenly">
+                        <Button
+                            variant="contained"
+                            sx={{color: "#26251F", background: "#F5EABA", marginBottom: 1}}
+                            onClick={() => { copy(selectedAsset.browser_download_url) }}
+                        > <ContentCopyIcon/> {" Copy calendar feed"} </Button>
+                    </Stack>
+                )}
+            </CopyToClipboard>
+        </>)
+
+    const subscriptionHelp = (
+        <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} >
+                <Typography>How do I add the calendar feed to Google Calendar/Outlook/Apple Calendar/etc?</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+                <Typography>
+                    First make sure you&apos;ve copied the subscription
+                    link for your calendar (using the &quot;Copy Calendar
+                    Feed&quot; button above).
+                </Typography>
+                <Typography>
+                    Now you need to open your calendar app:
+                </Typography>
+                <Typography>
+                    Click <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href="https://calendar.google.com/calendar/u/0/r/settings/addbyurl"
+                    >here</a> if you use Google calendar
+                </Typography>
+                <Typography>
+                    Click <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href="https://outlook.office.com/calendar/addcalendar"
+                    >here</a> if you use Outlook
+                </Typography>
+                <Typography>
+                    Paste the calendar feed link into the text box that
+                    pops up when you click that link, and that&apos;s
+                    it!
+                </Typography>
+            </AccordionDetails>
+        </Accordion>
+    )
+
     return (<>
         <Box sx={{background: "#26251F"}}>
             <Container maxWidth="md">
-                <Stack direction="row" alignItems="center" justifyContent="space-around">
-                    <Typography align="center" fontSize={40} fontFamily={"Martel"} color={"text.primary"}>
-                        {" "}
-                    </Typography>
-                    <Typography align="center" fontSize={40} fontFamily={"Martel"} color={"text.primary"}>
-                        🔌 eskom-calendar
-                    </Typography>
-                    <a href="https://github.com/beyarkay/eskom-calendar/#readme" target={"_blank"} rel="noreferrer">
-                        <img src="github-mark-white.svg" alt="GitHub link" width="30" height="30"/>
-                    </a>
-                </Stack>
-                <Container maxWidth="md">
-                    <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
-                        Advert-free loadshedding schedules, online or in your digital calendar
-                    </Typography>
-                    <AreaAutoComplete
-                        result={areaMetadata}
-                        value={selectedArea}
-                        onChange={(_event, value) => {
-                            setSelectedArea(value)
-                            if (value !== null) {
-                                searchParams.set("calendar", value.calendar_name)
-                                setSearchParams(searchParams)
-                                if (assets.state === "ready") {
-                                    setSelectedAsset(assets.content.find(a => a.name === value.calendar_name) || null)
-                                }
-                            } else {
-                                searchParams.delete("calendar")
-                                setSearchParams(searchParams)
-                            }
-                        }}
-                    />
-                    { events.state !== "ready" || !searchParams.has("calendar")
-                        ? undefined
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        : ( searchParams.has("calendar") && events.content.map(e => e.area_name).includes(searchParams.get("calendar")!.replace(".ics", ""))
-                            ? ( events.content.filter(e => e.area_name === selectedAsset?.name.replace(".ics", "")).length === 0
-                                ? `No loadshedding for ${selectedAsset !== null ? prettifyName(selectedAsset?.name) : "the selected area"}.`
-                                : undefined
-                            )
-                            : `Could not find the loadshedding area named '${searchParams.get("calendar")}'`
-                        )
-                    }
-                </Container>
-                <FullCalendar
-                    plugins={[dayGridPlugin, timeGridPlugin, iCalendarPlugin]}
-                    initialView={"timeGrid"} // days along the x-axis, time along the y-axis
-                    height={500}
-                    nowIndicator={true} // Show a horizontal bar for the current time
-                    allDaySlot={false} // do not give any space for all-day events
-                    slotDuration={"01:00:00"}
-                    visibleRange={(currentDate) => {
-                        // The start date is the current date, the end date is a
-                        // few days into the future
-                        const endDate = new Date(currentDate.valueOf())
-                        endDate.setDate(endDate.getDate() + 3)
-                        return { start: new Date(currentDate.valueOf()), end: endDate }
-                    }}
-                    headerToolbar={{ start: "", center: "", end: "" }} // Remove the header toolbar
-                    slotLabelFormat={{
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false
-                    }}
-                    dayHeaderFormat={{
-                        weekday: "short",
-                        month: "short",
-                        day: "2-digit",
-                    }}
-                    eventTimeFormat={{
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false
-                    }}
-                    titleFormat={{
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                    }}
-                    events={events.state == "ready" ? events.content
-                        .filter(event => event.area_name === selectedAsset?.name.replace(".ics", ""))
-                        .map(event => {
-                            return {
-                                title: `🔌 Stage ${event.stage} (${prettifyName(event.area_name)})`,
-                                start: event.start,
-                                end: event.finsh,
-                                allDay: false,
-                            }}) : []}
-                />
-                <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{ marginTop: 2, background: "#ECC11F"}}>
-                    <Box width={"25%"}>
-                        <Typography align="center" fontSize={50}>⏰</Typography>
-                        <Typography align="center" color={"background.default"}>Up-to-date</Typography>
-                    </Box>
-                    <Box width={"25%"}>
-                        <Typography align="center" fontSize={50}>🙅</Typography>
-                        <Typography align="center" color={"background.default"}>Advert-free</Typography>
-                    </Box>
-                    <Box width={"25%"}>
-                        <a
-                            href="https://github.com/beyarkay/eskom-calendar/#using-the-data-in-your-own-projects"
-                            target={"_blank"}
-                            rel="noreferrer"
-                            style={{ textDecoration:"none" }}
-                        >
-                            <Typography align="center" fontSize={50}>👩‍💻</Typography>
-                            <Typography align="center" color={"background.default"}>Developer Friendly</Typography>
-                        </a>
-                    </Box>
-                </Stack>
-                <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{py: 1}}>
-                    Share {selectedAsset === null ? "the URL for this site" : "the link for " + prettifyName(selectedAsset?.name)}
-                    {" "}with your friends so they know when you&apos;ve got
-                    loadshedding:
-                </Typography>
-                <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{py: 1}}>
-                    <a
-                        aria-label="Share via WhatsApp"
-                        href={`whatsapp://send?text=${share_text}`}
-                        data-action="share/whatsapp/share"
-                    >
-                        <WhatsappIcon size={48} borderRadius={10} round={false} />
-                    </a>
-                    <a
-                        aria-label="Share via Twitter"
-                        href={`https://twitter.com/intent/tweet?text=${share_text}&via=beyarkay`}
-                        data-dnt="true"
-                    >
-                        <TwitterIcon size={48} borderRadius={10} round={false}/>
-                    </a>
-                    <a
-                        aria-label="Share via Linkedin"
-                        href={"https://www.linkedin.com/sharing/share-offsite/?url=https://beyarkay.github.io"}
-                        title="Share by Linkedin"
-                    >
-                        <LinkedinIcon size={48} borderRadius={10} round={false} />
-                    </a>
-                    <a
-                        aria-label="Share via Email"
-                        href={`mailto:?subject=Advert-free loadshedding schedule online&body=${share_text}`}
-                        title="Share by Email"
-                    >
-                        <EmailIcon size={48} borderRadius={10} round={false} />
-                    </a>
-                    <CopyToClipboard>
-                        {({copy}) => (
-                            <Button
-                                sx={{color: "#26251F", background: "#F5EABA"}}
-                                variant="contained"
-                                onClick={() => { copy(window.location) }}
-                            > <ContentCopyIcon/> {" Copy URL"} </Button>
-                        )}
-                    </CopyToClipboard>
-                </Stack>
-                { selectedAsset === null
-                    ? <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{py: 1}}>
-                        As the name suggests, eskom-calendar provides a
-                        calendar subscription link. Select an area above
-                        and a button to copy the link will appear here.
-                    </Typography>
-                    : <>
-                        <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{py: 1}}>
-                            Subscribe to the  calendar feed {selectedAsset === null ? "" : "for " +  prettifyName(selectedAsset.name)} to
-                            get loadshedding in your digital calendar:
-                        </Typography>
-                        <CopyToClipboard>
-                            {({copy}) => (
-                                <Stack alignItems="center" justifyContent="space-evenly">
-                                    <Button
-                                        variant="contained"
-                                        sx={{color: "#26251F", background: "#F5EABA", marginBottom: 1}}
-                                        onClick={() => { copy(selectedAsset.browser_download_url) }}
-                                    > <ContentCopyIcon/> {" Copy calendar feed"} </Button>
-                                </Stack>
-                            )}
-                        </CopyToClipboard>
-                    </>
-                }
-                <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />} >
-                        <Typography>How do I add the calendar feed to Google Calendar/Outlook/Apple Calendar/etc?</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Typography>
-                            First make sure you&apos;ve copied the subscription
-                            link for your calendar (using the &quot;Copy Calendar
-                            Feed&quot; button above).
-                        </Typography>
-                        <Typography>
-                            Now you need to open your calendar app:
-                        </Typography>
-                        <Typography>
-                            Click <a
-                                target="_blank"
-                                rel="noreferrer"
-                                href="https://calendar.google.com/calendar/u/0/r/settings/addbyurl"
-                            >here</a> if you use Google calendar
-                        </Typography>
-                        <Typography>
-                            Click <a
-                                target="_blank"
-                                rel="noreferrer"
-                                href="https://outlook.office.com/calendar/addcalendar"
-                            >here</a> if you use Outlook
-                        </Typography>
-                        <Typography>
-                            Paste the calendar feed link into the text box that
-                            pops up when you click that link, and that&apos;s
-                            it!
-                        </Typography>
-                    </AccordionDetails>
-                </Accordion>
-                {/* TODO: add in notifications and API explanaitons*/}
-                {/* eslint-disable-next-line no-constant-condition */}
-                {true ? undefined : <>
-                    <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} >
-                            <Typography>Allow notifications to get an alert before loadshedding hits</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <Typography>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                            malesuada lacus ex, sit amet blandit leo lobortis eget.
-                            </Typography>
-                        </AccordionDetails>
-                    </Accordion>
-                    <Accordion sx={{background: "#ECC11F", color: "#26251F"}}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} >
-                            <Typography>Use the API for free in your own apps or projects</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <Typography>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                            malesuada lacus ex, sit amet blandit leo lobortis eget.
-                            </Typography>
-                        </AccordionDetails>
-                    </Accordion>
-                </>}
+                {headerStack}
+                {autocompleteStack}
+                {calendarComponent}
+                {iconStack}
+                {shareVia}
+                {copySubscriptionLink}
+                {subscriptionHelp}
+                {/* TODO: add in notifications*/}
             </Container>
         </Box>
     </>)
