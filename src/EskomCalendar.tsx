@@ -10,6 +10,7 @@ import {
     AccordionSummary,
     Button,
     Container,
+    Grid,
     Stack,
     Typography,
 } from "@mui/material"
@@ -228,12 +229,11 @@ function EskomCalendar() {
         React.useState<AreaMetadata | null>(null)
     const [events, setEvents] =
         React.useState<Result<Event[], string>>( { state: "unsent" })
-    const [selectedAsset, setSelectedAsset] =
-        React.useState<ReleaseAsset | null>(null)
     const [assets, setAssets] =
         React.useState<Result<ReleaseAsset[], string>>( { state: "unsent" })
     const [searchParams, setSearchParams] = useSearchParams()
-    const calendar = searchParams.get("calendar") || undefined
+
+    const hideCalendar = selectedArea === null && !searchParams.has("calendar")
 
     if (events.state === "unsent") {
         downloadMachineFriendly().then(newEvents => {
@@ -247,12 +247,6 @@ function EskomCalendar() {
     if (assets.state === "unsent") {
         getReleaseAssets()
             .then(newAssets => {
-                if (newAssets.state === "ready") {
-                    const matched = newAssets.content.filter(asset => asset.name === calendar)
-                    if (matched.length > 0) {
-                        setSelectedAsset(matched[0])
-                    }
-                }
                 setAssets(newAssets)
             })
             .catch(err => setAssets({state: "error", content: err}))
@@ -260,6 +254,9 @@ function EskomCalendar() {
 
     if (areaMetadata.state === "unsent") {
         downloadAreaMetadata().then(content => {
+            if (searchParams.has("calendar")) {
+                setSelectedArea(content.find(area => area.calendar_name === searchParams.get("calendar")) || null)
+            }
             setAreaMetadata({
                 state: "ready",
                 content: content,
@@ -269,40 +266,53 @@ function EskomCalendar() {
 
     React.useEffect(checkRateLimit, [])
 
-    const share_text = selectedAsset === null
+    const share_text = selectedArea === null
         ? `Check out loadshedding schedules for for free online with eskom-calendar: ${window.location}`
-        : `Check out the loadshedding schedule for ${prettifyName(selectedAsset.name)} for free online with eskom-calendar: ${window.location}`
+        : `Check out the loadshedding schedule for ${prettifyName(selectedArea.calendar_name)} for free online with eskom-calendar: ${window.location}`
+
+    const githubIcon = (
+        <Box p={"10px"} sx={{background: "#FFFFFF0A"}}>
+            <Box justifyContent="flex-end" display={"flex"}>
+                <a href="https://github.com/beyarkay/eskom-calendar/#readme" target={"_blank"} rel="noreferrer">
+                    <img src="github-mark-white.svg" alt="GitHub link" width="30" height="30"/>
+                </a>
+            </Box>
+        </Box>
+    )
 
     const headerStack = (
-        <Stack direction="row" alignItems="center" justifyContent="space-around">
-            <Typography align="center" fontSize={40} fontFamily={"Martel"} color={"text.primary"}>
-                {" "}
+        <Stack alignItems="center" justifyContent="space-around" spacing={0} maxWidth="380px">
+            <Stack
+                direction={hideCalendar ? "column" : "row"}
+                alignItems="center"
+                justifyContent="space-around"
+                spacing={0}
+                maxWidth="380px"
+            >
+                <Typography align="center" fontSize={hideCalendar ? 120 : 40} fontFamily={"Martel"} color={"text.primary"}>
+                    🔌
+                </Typography>
+                <Typography align="center" fontSize={40} fontFamily={"Martel"} color={"text.primary"}>
+                    eskom-calendar
+                </Typography>
+            </Stack>
+            <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
+                Advert-free loadshedding schedules, online or in your digital calendar
             </Typography>
-            <Typography align="center" fontSize={40} fontFamily={"Martel"} color={"text.primary"}>
-                🔌 eskom-calendar
-            </Typography>
-            <a href="https://github.com/beyarkay/eskom-calendar/#readme" target={"_blank"} rel="noreferrer">
-                <img src="github-mark-white.svg" alt="GitHub link" width="30" height="30"/>
-            </a>
         </Stack>
     )
 
     const autocompleteStack = (
         <Container maxWidth="md">
-            <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
-                Advert-free loadshedding schedules, online or in your digital calendar
-            </Typography>
             <AreaAutoComplete
                 result={areaMetadata}
                 value={selectedArea}
+                hideCalendar={hideCalendar}
                 onChange={(_event, value) => {
                     setSelectedArea(value)
                     if (value !== null) {
                         searchParams.set("calendar", value.calendar_name)
                         setSearchParams(searchParams)
-                        if (assets.state === "ready") {
-                            setSelectedAsset(assets.content.find(a => a.name === value.calendar_name) || null)
-                        }
                     } else {
                         searchParams.delete("calendar")
                         setSearchParams(searchParams)
@@ -313,8 +323,8 @@ function EskomCalendar() {
                 ? undefined
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 : ( searchParams.has("calendar") && events.content.map(e => e.area_name).includes(searchParams.get("calendar")!.replace(".ics", ""))
-                    ? ( events.content.filter(e => e.area_name === selectedAsset?.name.replace(".ics", "")).length === 0
-                        ? `No loadshedding for ${selectedAsset !== null ? prettifyName(selectedAsset?.name) : "the selected area"}.`
+                    ? ( events.content.filter(e => e.area_name === selectedArea?.calendar_name.replace(".ics", "")).length === 0
+                        ? `No loadshedding for ${selectedArea !== null ? prettifyName(selectedArea?.calendar_name) : "the selected area"}.`
                         : undefined
                     )
                     : `Could not find the loadshedding area named '${searchParams.get("calendar")}'`
@@ -328,8 +338,8 @@ function EskomCalendar() {
             plugins={[dayGridPlugin, timeGridPlugin, iCalendarPlugin]}
             eventTextColor="#000"
             initialView={"timeGrid"} // days along the x-axis, time along the y-axis
-            height={500}
-            nowIndicator={true} // Show a horizontal bar for the current time
+            height={"auto"}
+            nowIndicator={false} // Show a horizontal bar for the current time
             allDaySlot={false} // do not give any space for all-day events
             slotDuration={"01:00:00"}
             visibleRange={(currentDate) => {
@@ -361,7 +371,7 @@ function EskomCalendar() {
                 year: "numeric",
             }}
             events={events.state == "ready" ? events.content
-                .filter(event => event.area_name === selectedAsset?.name.replace(".ics", ""))
+                .filter(event => event.area_name === selectedArea?.calendar_name.replace(".ics", ""))
                 .map(event => {
                     return {
                         title: `🔌 Stage ${event.stage} (${prettifyName(event.area_name)})`,
@@ -397,7 +407,7 @@ function EskomCalendar() {
 
     const shareVia = ( <>
         <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{py: 1}}>
-            Share {selectedAsset === null ? "the URL for this site" : "the link for " + prettifyName(selectedAsset?.name)}
+            Share {selectedArea === null ? "the URL for this site" : "the link for " + prettifyName(selectedArea.calendar_name)}
             {" "}with your friends so they know when you&apos;ve got
             loadshedding:
         </Typography>
@@ -442,7 +452,7 @@ function EskomCalendar() {
         </Stack>
     </>)
 
-    const copySubscriptionLink = (selectedAsset === null
+    const copySubscriptionLink = (selectedArea === null
         ? <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{py: 1}}>
             As the name suggests, eskom-calendar provides a
             calendar subscription link. Select an area above
@@ -450,7 +460,7 @@ function EskomCalendar() {
         </Typography>
         : <>
             <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{py: 1}}>
-                Subscribe to the  calendar feed {selectedAsset === null ? "" : "for " +  prettifyName(selectedAsset.name)} to
+                Subscribe to the  calendar feed {selectedArea === null ? "" : "for " +  prettifyName(selectedArea.calendar_name)} to
                 get loadshedding in your digital calendar:
             </Typography>
             <CopyToClipboard>
@@ -459,7 +469,7 @@ function EskomCalendar() {
                         <Button
                             variant="contained"
                             sx={{color: "#26251F", background: "#F5EABA", marginBottom: 1}}
-                            onClick={() => { copy(selectedAsset.browser_download_url) }}
+                            onClick={() => { copy(assets.state === "ready" ? assets.content.find(a => a.name === selectedArea.calendar_name)?.browser_download_url : "") }}
                         > <ContentCopyIcon/> {" Copy calendar feed"} </Button>
                     </Stack>
                 )}
@@ -505,14 +515,33 @@ function EskomCalendar() {
 
     return (<>
         <Box sx={{background: "#26251F"}}>
-            <Container maxWidth="md">
+            {githubIcon}
+            <Grid
+                spacing={0}
+                alignItems="center"
+                justifyContent="center"
+                sx={{
+                    minWidth: "100%",
+                    minHeight: hideCalendar ? "50vh" : "0",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                }}
+            >
                 {headerStack}
                 {autocompleteStack}
-                {calendarComponent}
-                {iconStack}
-                {shareVia}
-                {copySubscriptionLink}
-                {subscriptionHelp}
+            </Grid>
+            <Container maxWidth="md">
+                {hideCalendar
+                    ? undefined
+                    : <>
+                        {calendarComponent}
+                        {iconStack}
+                        {shareVia}
+                        {copySubscriptionLink}
+                        {subscriptionHelp}
+                    </>
+                }
                 {/* TODO: add in notifications*/}
             </Container>
         </Box>

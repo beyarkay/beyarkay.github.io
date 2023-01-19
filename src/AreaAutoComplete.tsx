@@ -1,5 +1,5 @@
 import * as React from "react"
-import {Autocomplete, CircularProgress, TextField} from "@mui/material"
+import {Autocomplete, CircularProgress, TextField, Typography} from "@mui/material"
 import {Area, AreaMetadata, prettifyName, Result} from "./EskomCalendar"
 import { createFilterOptions } from "@mui/material/Autocomplete"
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline"
@@ -10,9 +10,10 @@ type AreaAutoCompleteProps = {
     result: Result<AreaMetadata[], string>;
     value: AreaMetadata | null;
     onChange: (event: React.SyntheticEvent<Element, Event>, value: AreaMetadata | null) => void;
+    hideCalendar: boolean;
 }
 
-function AreaAutoComplete({result, value, onChange}: AreaAutoCompleteProps) {
+function AreaAutoComplete({result, value, onChange, hideCalendar}: AreaAutoCompleteProps) {
     return (
         <Autocomplete
             isOptionEqualToValue={(option: AreaMetadata, value: AreaMetadata) => option.calendar_name === value.calendar_name }
@@ -24,6 +25,17 @@ function AreaAutoComplete({result, value, onChange}: AreaAutoCompleteProps) {
             noOptionsText={"No areas"}
             value={value}
             disabledItemsFocusable={true}
+            sx={{
+                boxShadow: hideCalendar ? "0px 2px 10px 10px #f5eaba0f" : undefined,
+                px: hideCalendar ? "16px" : undefined,
+                pb: hideCalendar ? "16px" : undefined,
+                pt: hideCalendar ? "0" : "8px",
+                mt: hideCalendar ? "25px" : undefined,
+                borderRadius: "10px",
+            }}
+            renderOption={(props, option, state) => <AreaAutoCompleteOption state={state} props={props} option={option}/>}
+            getOptionLabel={option => `${prettifyName(option.calendar_name)} (${option.calendar_name.replace(".ics", "")})`}
+            onChange={onChange}
             filterOptions={ createFilterOptions({
                 stringify: (area) => { return (
                     prettifyName(area.calendar_name)  + " " +  area.calendar_name + " " + area.areas.map(a => a.name).join(" ")
@@ -37,8 +49,8 @@ function AreaAutoComplete({result, value, onChange}: AreaAutoCompleteProps) {
                         label={(["unsent", "loading"].includes(result.state)
                             ? "Getting the loadshedding schedules..."
                             : (result.state === "error"
-                                ? "Failed to get the loadshedding schedules"
-                                : "See the loadshedding schedule for..."
+                                ? <Typography align="center">Failed to get the loadshedding schedules</Typography>
+                                : <Typography align="center">Find load shedding area</Typography>
                             )
                         )}
                         size="medium"
@@ -58,9 +70,6 @@ function AreaAutoComplete({result, value, onChange}: AreaAutoCompleteProps) {
                     />
                 )
             }}
-            renderOption={(props, option, state) => <AreaAutoCompleteOption state={state} props={props} option={option}/>}
-            getOptionLabel={option => `${prettifyName(option.calendar_name)} (${option.calendar_name.replace(".ics", "")})`}
-            onChange={onChange}
         />
     )
 }
