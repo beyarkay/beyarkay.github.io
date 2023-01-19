@@ -55,11 +55,11 @@ function MakePullRequest() {
                 exclude: c.exclude,
             })).sort(
                 (c1, c2) => c1.start < c2.start ? -1 : (c1.start === c2.start ? 0 : 1)
-            ), 
+            ),
             {sortKeys: (a, b) => ordering[a] - ordering[b]}
         ).replaceAll("'", "").replaceAll("\n", "\n  ").replaceAll("+02:00", "")
     }
-   
+
     const changeToEvent = (change: Change) => ({
         start: change.start,
         end: change.finsh,
@@ -78,7 +78,7 @@ function MakePullRequest() {
         />
         <Box>
             <blockquote className="twitter-tweet">
-                <a href={source}></a> 
+                <a href={source}></a>
             </blockquote>
         </Box>
         <FormControl>
@@ -177,7 +177,7 @@ function MakePullRequest() {
                     variant="contained"
                     target="_blank"
                     rel="noreferrer"
-                    href="https://github.com/beyarkay/eskom-calendar/edit/main/manually_specified.yaml" 
+                    href="https://github.com/beyarkay/eskom-calendar/edit/main/manually_specified.yaml"
                     onClick={() => { copy(changesToText(changes)) }}
                 > <ContentCopyIcon/> {"Copy & Edit manually_specified"} </Button>
             )}
