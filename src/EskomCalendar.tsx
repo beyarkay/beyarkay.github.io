@@ -326,6 +326,7 @@ function EskomCalendar() {
     const calendarComponent = (
         <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, iCalendarPlugin]}
+            eventTextColor="#000"
             initialView={"timeGrid"} // days along the x-axis, time along the y-axis
             height={500}
             nowIndicator={true} // Show a horizontal bar for the current time
