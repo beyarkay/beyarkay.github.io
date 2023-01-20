@@ -292,25 +292,24 @@ function EskomCalendar() {
         : `Check out the loadshedding schedule for ${prettifyName(selectedArea.calendar_name)} for free online with eskom-calendar: ${window.location}`
 
     const headerStack = (
-        <Stack alignItems="center" justifyContent="space-around" spacing={0} maxWidth="380px">
+        <Stack alignItems="center" justifyContent="space-around" spacing={0} maxWidth="395px">
             <a href="/ec" style={{textDecoration: "none"}}>
                 <Stack
                     direction={hideCalendar ? "column" : "row"}
                     alignItems="center"
                     justifyContent="space-around"
                     spacing={0}
-                    maxWidth="380px"
                 >
-                    <Typography align="center" fontSize={hideCalendar ? 120 : 30} fontFamily={"Martel"} color={"text.primary"}>
+                    <Typography align="center" variant={hideCalendar ? "h1" : "h4"} fontFamily={"Martel"} color={"text.primary"}>
                         🔌
                     </Typography>
-                    <Typography align="center" fontSize={hideCalendar ? 40 : 30} fontFamily={"Martel"} color={"text.primary"}>
+                    <Typography align="center" variant={hideCalendar ? "h3" : "h4"} fontFamily={"Martel"} color={"text.primary"}>
                         eskom-calendar
                     </Typography>
                 </Stack>
             </a>
             { hideCalendar
-                ? <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
+                ? <Typography align="center" variant={hideCalendar ? "h5" : "h6"} fontFamily={"Overpass"} color={"text.secondary"}>
                     Advert-free loadshedding schedules, online or in your digital calendar
                 </Typography>
                 : undefined
@@ -418,24 +417,24 @@ function EskomCalendar() {
         />
     )
     const iconStack = (
-        <Stack direction="row" alignItems="center" justifyContent="space-evenly" sx={{ marginTop: 2, background: "#ECC11F"}}>
-            <Box width={"25%"}>
-                <Typography align="center" fontSize={50}>⏰</Typography>
-                <Typography align="center" color={"background.default"}>Up-to-date</Typography>
+        <Stack direction="row" alignItems="center" justifyContent="space-evenly"  sx={{ marginTop: 2, background: "#ECC11F"}}>
+            <Box width={"25%"} m="10px">
+                <Typography align="center" variant="h4">⏰</Typography>
+                <Typography align="center" variant="h6" color={"background.default"}>Up-to-date</Typography>
             </Box>
-            <Box width={"25%"}>
-                <Typography align="center" fontSize={50}>🙅</Typography>
-                <Typography align="center" color={"background.default"}>Advert-free</Typography>
+            <Box width={"25%"} m="10px">
+                <Typography align="center" variant="h4">🙅</Typography>
+                <Typography align="center" variant="h6" color={"background.default"}>Advert-free</Typography>
             </Box>
-            <Box width={"25%"}>
+            <Box width={"25%"} m="10px">
                 <a
                     href="https://github.com/beyarkay/eskom-calendar/#using-the-data-in-your-own-projects"
                     target={"_blank"}
                     rel="noreferrer"
                     style={{ textDecoration:"none" }}
                 >
-                    <Typography align="center" fontSize={50}>👩‍💻</Typography>
-                    <Typography align="center" color={"background.default"}>Developer Friendly</Typography>
+                    <Typography align="center" variant="h4">👩‍💻</Typography>
+                    <Typography align="center" variant="h6" color={"background.default"}>Developer Friendly</Typography>
                 </a>
             </Box>
         </Stack>

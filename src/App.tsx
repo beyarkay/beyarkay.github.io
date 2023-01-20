@@ -1,6 +1,6 @@
 import "./App.css"
 import * as React from "react"
-import {createTheme} from "@mui/material"
+import {createTheme, responsiveFontSizes} from "@mui/material"
 import {Navigate, Route, Routes} from "react-router"
 import Home from "./Home"
 import About from "./About"
@@ -10,7 +10,7 @@ import NotFound from "./NotFound"
 import {ThemeProvider} from "@emotion/react"
 
 function App() {
-    const theme = createTheme({
+    let theme = createTheme({
         palette: {
             background: {
                 default: "#26251F",
@@ -22,6 +22,7 @@ function App() {
             },
         },
     })
+    theme = responsiveFontSizes(theme)
 
     return (<>
         <ThemeProvider theme={theme}>
