@@ -45,7 +45,7 @@
   "scripts": {
     "start": "react-scripts start",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -b gh-pages -d build",
+    "deploy": "echo 'eskomcalendar.co.za' > ./build/CNAME && gh-pages -b gh-pages -d build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
