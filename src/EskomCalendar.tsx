@@ -270,16 +270,6 @@ function EskomCalendar() {
         ? `Check out loadshedding schedules for for free online with eskom-calendar: ${window.location}`
         : `Check out the loadshedding schedule for ${prettifyName(selectedArea.calendar_name)} for free online with eskom-calendar: ${window.location}`
 
-    const githubIcon = (
-        <Box p={"10px"} sx={{background: "#FFFFFF0A"}}>
-            <Box justifyContent="flex-end" display={"flex"}>
-                <a href="https://github.com/beyarkay/eskom-calendar/#readme" target={"_blank"} rel="noreferrer">
-                    <img src="github-mark-white.svg" alt="GitHub link" width="30" height="30"/>
-                </a>
-            </Box>
-        </Box>
-    )
-
     const headerStack = (
         <Stack alignItems="center" justifyContent="space-around" spacing={0} maxWidth="380px">
             <Stack
@@ -289,16 +279,39 @@ function EskomCalendar() {
                 spacing={0}
                 maxWidth="380px"
             >
-                <Typography align="center" fontSize={hideCalendar ? 120 : 40} fontFamily={"Martel"} color={"text.primary"}>
+                <Typography align="center" fontSize={hideCalendar ? 120 : 30} fontFamily={"Martel"} color={"text.primary"}>
                     🔌
                 </Typography>
-                <Typography align="center" fontSize={40} fontFamily={"Martel"} color={"text.primary"}>
+                <Typography align="center" fontSize={hideCalendar ? 40 : 30} fontFamily={"Martel"} color={"text.primary"}>
                     eskom-calendar
                 </Typography>
             </Stack>
-            <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
-                Advert-free loadshedding schedules, online or in your digital calendar
-            </Typography>
+            { hideCalendar
+                ? <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
+                    Advert-free loadshedding schedules, online or in your digital calendar
+                </Typography>
+                : undefined
+            }
+        </Stack>
+    )
+
+    const headerBar = (
+        <Stack
+            direction={"row"}
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={2}
+            p="5px"
+            pr={"10px"}
+            sx={{background: "#FFFFFF0A"}}
+        >
+            <Box></Box>
+            {hideCalendar ? <Box></Box> : headerStack}
+            <Box justifyContent="flex-end" display={"flex"}>
+                <a href="https://github.com/beyarkay/eskom-calendar/#readme" target={"_blank"} rel="noreferrer">
+                    <img src="github-mark-white.svg" alt="GitHub link" width="30" height="30"/>
+                </a>
+            </Box>
         </Stack>
     )
 
@@ -515,7 +528,7 @@ function EskomCalendar() {
 
     return (<>
         <Box sx={{background: "#26251F"}}>
-            {githubIcon}
+            {headerBar}
             <Grid
                 spacing={0}
                 alignItems="center"
@@ -528,7 +541,7 @@ function EskomCalendar() {
                     justifyContent: "center",
                 }}
             >
-                {headerStack}
+                {hideCalendar ? headerStack : undefined}
                 {autocompleteStack}
             </Grid>
             <Container maxWidth="md">

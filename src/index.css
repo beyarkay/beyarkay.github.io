@@ -12,7 +12,7 @@ code {
     monospace;
 }
 
-:root {
+body {
   --fc-page-bg-color: #26251f;
   --fc-border-color: #ecc11f61;
   --fc-event-border-color: #000000;
