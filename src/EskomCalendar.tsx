@@ -236,31 +236,52 @@ function EskomCalendar() {
     const hideCalendar = selectedArea === null && !searchParams.has("calendar")
 
     if (events.state === "unsent") {
+        if (localStorage.getItem("events") !== null){
+            const events = JSON.parse(localStorage.getItem("events") || "undefined")
+            console.log("Retrieved events from localStorage")
+            setEvents({ state: "ready", content: events })
+        }
         downloadMachineFriendly().then(newEvents => {
             setEvents({
                 state: "ready",
                 content: newEvents,
             })
+            console.log("Stored events in localStorage")
+            localStorage.setItem("events", JSON.stringify(newEvents))
         }).catch(err => setEvents({state: "error", content: err}))
     }
 
     if (assets.state === "unsent") {
+        if (localStorage.getItem("assets") !== null){
+            const assets = JSON.parse(localStorage.getItem("assets") || "undefined")
+            console.log("Retrieved assets from localStorage")
+            setAssets({ state: "ready", content: assets })
+        }
         getReleaseAssets()
             .then(newAssets => {
                 setAssets(newAssets)
+                console.log("Stored assets in localStorage")
+                localStorage.setItem("assets", JSON.stringify(newAssets))
             })
             .catch(err => setAssets({state: "error", content: err}))
     }
 
     if (areaMetadata.state === "unsent") {
-        downloadAreaMetadata().then(content => {
+        if (localStorage.getItem("areaMetadata") !== null){
+            const areaMetadata: AreaMetadata[] = JSON.parse(localStorage.getItem("areaMetadata") || "[]")
+            console.log("Retrieved areaMetadata from localStorage")
+            setAreaMetadata({ state: "ready", content: areaMetadata })
             if (searchParams.has("calendar")) {
-                setSelectedArea(content.find(area => area.calendar_name === searchParams.get("calendar")) || null)
+                setSelectedArea(areaMetadata.find(area => area.calendar_name === searchParams.get("calendar")) || null)
             }
-            setAreaMetadata({
-                state: "ready",
-                content: content,
-            })
+        }
+        downloadAreaMetadata().then(newAreaMetadata => {
+            if (searchParams.has("calendar")) {
+                setSelectedArea(newAreaMetadata.find(area => area.calendar_name === searchParams.get("calendar")) || null)
+            }
+            setAreaMetadata({ state: "ready", content: newAreaMetadata })
+            console.log("Stored areaMetadata in localStorage")
+            localStorage.setItem("areaMetadata", JSON.stringify(newAreaMetadata))
         }).catch(err => setAreaMetadata({state: "error", content: err}))
     }
 
