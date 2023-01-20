@@ -272,20 +272,22 @@ function EskomCalendar() {
 
     const headerStack = (
         <Stack alignItems="center" justifyContent="space-around" spacing={0} maxWidth="380px">
-            <Stack
-                direction={hideCalendar ? "column" : "row"}
-                alignItems="center"
-                justifyContent="space-around"
-                spacing={0}
-                maxWidth="380px"
-            >
-                <Typography align="center" fontSize={hideCalendar ? 120 : 30} fontFamily={"Martel"} color={"text.primary"}>
-                    🔌
-                </Typography>
-                <Typography align="center" fontSize={hideCalendar ? 40 : 30} fontFamily={"Martel"} color={"text.primary"}>
-                    eskom-calendar
-                </Typography>
-            </Stack>
+            <a href="/ec" style={{textDecoration: "none"}}>
+                <Stack
+                    direction={hideCalendar ? "column" : "row"}
+                    alignItems="center"
+                    justifyContent="space-around"
+                    spacing={0}
+                    maxWidth="380px"
+                >
+                    <Typography align="center" fontSize={hideCalendar ? 120 : 30} fontFamily={"Martel"} color={"text.primary"}>
+                        🔌
+                    </Typography>
+                    <Typography align="center" fontSize={hideCalendar ? 40 : 30} fontFamily={"Martel"} color={"text.primary"}>
+                        eskom-calendar
+                    </Typography>
+                </Stack>
+            </a>
             { hideCalendar
                 ? <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"}>
                     Advert-free loadshedding schedules, online or in your digital calendar
