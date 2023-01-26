@@ -12,20 +12,21 @@ type AreaAutoCompleteOptionProps = {
 };
 
 function AreaAutoCompleteOption({props, option, state}: AreaAutoCompleteOptionProps) {
+    const normed_input = state.inputValue.replaceAll("-", " ").toLowerCase()
     const includesInputValue = (a: Area) => {
         if (Array.isArray(a.name)) {
             // If name is a list of names, check every one of them
-            return a.name.map(n => n.replaceAll("-", " ")).filter(n => n.includes(state.inputValue.toLowerCase())).length > 0
+            return a.name.map(n => n.replaceAll("-", " ")).filter(n => n.includes(normed_input)).length > 0
         } else {
             // otherwise, just check the single name
-            return a.name.replaceAll("-", " ").includes(state.inputValue.toLowerCase())
+            return a.name.replaceAll("-", " ").includes(normed_input)
         }
     }
     const area_names = option.areas
         .filter(area => includesInputValue(area))
         .map(area => {
             if (Array.isArray(area.name)) {
-                return area.name.filter(a => a.replaceAll("-", " ").toLowerCase().includes(state.inputValue.toLowerCase()))
+                return area.name.filter(a => a.replaceAll("-", " ").toLowerCase().includes(normed_input))
             } else {
                 return area.name
             }
@@ -39,7 +40,9 @@ function AreaAutoCompleteOption({props, option, state}: AreaAutoCompleteOptionPr
             }
         })
         .join(", ")
-    const matches = match(area_names, state.inputValue, { insideWords: true })
+    console.log("Area names:", area_names)
+    console.log("normed_input:", normed_input)
+    const matches = match(area_names, normed_input, { insideWords: true })
     const parts = parse(area_names, matches)
 
     return (
