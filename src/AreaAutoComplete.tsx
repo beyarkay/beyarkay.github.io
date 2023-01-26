@@ -1,6 +1,6 @@
 import * as React from "react"
 import {Autocomplete, CircularProgress, TextField, Typography} from "@mui/material"
-import {Area, AreaMetadata, prettifyName, Result} from "./EskomCalendar"
+import {AreaMetadata, prettifyName, Result} from "./EskomCalendar"
 import { createFilterOptions } from "@mui/material/Autocomplete"
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline"
 import AreaAutoCompleteOption from "./AreaAutoCompleteOption"
@@ -18,7 +18,7 @@ function AreaAutoComplete({result, value, onChange, hideCalendar}: AreaAutoCompl
         <Autocomplete
             isOptionEqualToValue={(option: AreaMetadata, value: AreaMetadata) => option.calendar_name === value.calendar_name }
             id="autocomplete-areas"
-            groupBy={(option) => prettifyName(option.province)}
+            groupBy={(option) => option.province !== undefined ? prettifyName(option.province) : "Eskom Direct"}
             loading={["unsent", "loading"].includes(result.state)}
             blurOnSelect={true}
             options={result.state === "ready" ? result.content : []}

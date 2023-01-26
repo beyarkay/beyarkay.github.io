@@ -13,11 +13,31 @@ type AreaAutoCompleteOptionProps = {
 
 function AreaAutoCompleteOption({props, option, state}: AreaAutoCompleteOptionProps) {
     const includesInputValue = (a: Area) => {
-        return a.name.replaceAll("-", " ").includes(state.inputValue.toLowerCase())
+        if (Array.isArray(a.name)) {
+            // If name is a list of names, check every one of them
+            return a.name.map(n => n.replaceAll("-", " ")).filter(n => n.includes(state.inputValue.toLowerCase())).length > 0
+        } else {
+            // otherwise, just check the single name
+            return a.name.replaceAll("-", " ").includes(state.inputValue.toLowerCase())
+        }
     }
     const area_names = option.areas
-        .sort((a, b) => includesInputValue(a) === includesInputValue(b) ? a.name.localeCompare(b.name) : (includesInputValue(a) ? -1 : 1))
-        .map(a => prettifyName(a.name))
+        .filter(area => includesInputValue(area))
+        .map(area => {
+            if (Array.isArray(area.name)) {
+                return area.name.filter(a => a.replaceAll("-", " ").toLowerCase().includes(state.inputValue.toLowerCase()))
+            } else {
+                return area.name
+            }
+        })
+        // .sort((a, b) => includesInputValue(a) === includesInputValue(b) ? a.name.localeCompare(b.name) : (includesInputValue(a) ? -1 : 1))
+        .map(a => {
+            if (Array.isArray(a)) {
+                return a.map(n => prettifyName(n)).join(", ")
+            } else {
+                return prettifyName(a)
+            }
+        })
         .join(", ")
     const matches = match(area_names, state.inputValue, { insideWords: true })
     const parts = parse(area_names, matches)

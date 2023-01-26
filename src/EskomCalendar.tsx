@@ -76,15 +76,17 @@ export type ReleaseAsset = {
 }
 
 export type Area = {
-    name: string,
-    lat_lngs: number[][]
+    name: string | string[],
+    lat_lngs?: number[][]
+    province?: string,
+    municipality?: string,
 }
 
 export type AreaMetadata = {
     calendar_name: string,
-    province: string,
-    municipality: string,
-    city: string,
+    province?: string,
+    municipality?: string,
+    city?: string,
     provider: string,
     source: string,
     source_info: string,
@@ -182,7 +184,13 @@ const downloadAreaMetadata = async() => {
         .then(res => res.text())
         .then(yaml => {
             return  (jsyaml.load(yaml) as {area_details: AreaMetadata[]})["area_details"]
-                .sort((a, b) => a.province.localeCompare(b.province))
+                .sort((a, b) => {
+                    if (a.province !== undefined && b.province !== undefined) {
+                        return a.province.localeCompare(b.province)
+                    } else {
+                        return a.calendar_name.localeCompare(b.calendar_name)
+                    }
+                })
         })
 }
 
@@ -282,7 +290,10 @@ function EskomCalendar() {
             setAreaMetadata({ state: "ready", content: newAreaMetadata })
             console.log("Stored areaMetadata in localStorage")
             localStorage.setItem("areaMetadata", JSON.stringify(newAreaMetadata))
-        }).catch(err => setAreaMetadata({state: "error", content: err}))
+        }).catch(err => {
+            console.log(err)
+            setAreaMetadata({state: "error", content: err})
+        })
     }
 
     React.useEffect(checkRateLimit, [])
