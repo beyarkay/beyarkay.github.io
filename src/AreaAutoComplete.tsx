@@ -37,9 +37,10 @@ function AreaAutoComplete({result, value, onChange, hideCalendar}: AreaAutoCompl
             getOptionLabel={option => `${prettifyName(option.calendar_name)} (${option.calendar_name.replace(".ics", "")})`}
             onChange={onChange}
             filterOptions={ createFilterOptions({
-                stringify: (area) => { return (
+                stringify: (area) => (
                     prettifyName(area.calendar_name)  + " " +  area.calendar_name + " " + area.areas.map(a => a.name).join(" ")
-                )},
+                ).replaceAll("-", " "),
+                trim: true,
             })}
             renderInput={(params) => {
                 return (

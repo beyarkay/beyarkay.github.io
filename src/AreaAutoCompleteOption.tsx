@@ -40,8 +40,6 @@ function AreaAutoCompleteOption({props, option, state}: AreaAutoCompleteOptionPr
             }
         })
         .join(", ")
-    console.log("Area names:", area_names)
-    console.log("normed_input:", normed_input)
     const matches = match(area_names, normed_input, { insideWords: true })
     const parts = parse(area_names, matches)
 
