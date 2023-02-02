@@ -73,7 +73,7 @@ function MakePullRequest() {
             value={source}
             fullWidth
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setSource(event.target.value)
+                setSource(event.target.value.split("?")[0])
             }}
         />
         <Box>
