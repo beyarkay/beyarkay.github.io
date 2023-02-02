@@ -104,6 +104,7 @@ function MakePullRequest() {
             plugins={[interactionPlugin, dayGridPlugin, timeGridPlugin, iCalendarPlugin]}
             initialView={"timeGrid"}
             editable={true}
+            height={"auto"}
             eventDurationEditable={true}
             eventChange={(arg) => {
                 console.log("change")
