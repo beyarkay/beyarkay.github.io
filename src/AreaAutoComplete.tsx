@@ -14,17 +14,33 @@ type AreaAutoCompleteProps = {
 }
 
 function AreaAutoComplete({result, value, onChange, hideCalendar}: AreaAutoCompleteProps) {
+    const noOptionsComponent = (
+        <a
+            href="https://github.com/beyarkay/eskom-calendar/issues/new?assignees=beyarkay&labels=missing-area-schedule%2C+waiting-on-maintainer&template=missing-loadshedding-area-suburb.md&title=Missing+area+schedule"
+            style={{textDecoration: "none"}}
+            target={"_blank"}
+            rel="noreferrer"
+        >
+            <Typography align="center" variant="h6" fontFamily={"Martel"} color={"text.primary"}>
+                Can&apos;t find your area? Click here.
+            </Typography>
+        </a>
+    )
     return (
         <Autocomplete
-            isOptionEqualToValue={(option: AreaMetadata, value: AreaMetadata) => option.calendar_name === value.calendar_name }
-            id="autocomplete-areas"
-            groupBy={(option) => option.province !== undefined ? prettifyName(option.province) : "Eskom Direct"}
-            loading={["unsent", "loading"].includes(result.state)}
+            autoComplete
+            autoHighlight
+            autoSelect
             blurOnSelect={true}
+            getOptionLabel={option => `${prettifyName(option.calendar_name)} (${option.calendar_name.replace(".ics", "")})`}
+            id="autocomplete-areas"
+            isOptionEqualToValue={(option: AreaMetadata, value: AreaMetadata) => option.calendar_name === value.calendar_name }
+            loading={["unsent", "loading"].includes(result.state)}
+            noOptionsText={noOptionsComponent}
+            onChange={onChange}
             options={result.state === "ready" ? result.content : []}
-            noOptionsText={"No areas"}
+            renderOption={(props, option, state) => state.inputValue.length > 2 ? <AreaAutoCompleteOption state={state} props={props} option={option}/> : undefined}
             value={value}
-            disabledItemsFocusable={true}
             sx={{
                 boxShadow: hideCalendar ? "0px 2px 10px 10px #f5eaba0f" : undefined,
                 px: hideCalendar ? "16px" : undefined,
@@ -33,9 +49,6 @@ function AreaAutoComplete({result, value, onChange, hideCalendar}: AreaAutoCompl
                 mt: hideCalendar ? "25px" : undefined,
                 borderRadius: "10px",
             }}
-            renderOption={(props, option, state) => <AreaAutoCompleteOption state={state} props={props} option={option}/>}
-            getOptionLabel={option => `${prettifyName(option.calendar_name)} (${option.calendar_name.replace(".ics", "")})`}
-            onChange={onChange}
             filterOptions={ createFilterOptions({
                 stringify: (area) => (
                     prettifyName(area.calendar_name)  + " " +  area.calendar_name + " " + area.areas.map(a => a.name).join(" ")
