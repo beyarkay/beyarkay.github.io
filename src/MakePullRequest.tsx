@@ -57,7 +57,7 @@ function MakePullRequest() {
                 (c1, c2) => c1.start < c2.start ? -1 : (c1.start === c2.start ? 0 : 1)
             ),
             {sortKeys: (a, b) => ordering[a] - ordering[b]}
-        ).replaceAll("'", "").replaceAll("\n", "\n  ").replaceAll("+02:00", "")
+        ).replaceAll("'", "").replaceAll("\n", "\n  ").replaceAll("+02:00", "").trimEnd()
     }
 
     const changeToEvent = (change: Change) => ({
