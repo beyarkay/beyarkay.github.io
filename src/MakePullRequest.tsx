@@ -12,6 +12,7 @@ import {DateSelectArg, EventClickArg} from "fullcalendar"
 import jsyaml from "js-yaml"
 
 
+// Represents a single loadshedding stage change
 type Change = {
     id: string;
     stage: number;
@@ -23,18 +24,25 @@ type Change = {
 };
 
 function MakePullRequest() {
+    // The list of changes
     const [changes, setChanges] = React.useState<Change[]>([])
+    // The source URL of a group of changes
     const [source, setSource] = React.useState<string | undefined>(undefined)
+    // The stage of loadshedding
     const [stage, setStage] = React.useState<number | undefined>(undefined)
 
+    // add a change by simply appending a change onto the list of changes
     const addChange = (change: Change) => { setChanges([...changes, change]) }
 
+    // remove a change by filtering out a change from the list of changes
     const removeChange = (id: string) => { setChanges(changes.filter(c => c.id !== id)) }
 
+    // modify a change by looking at the change IDs
     const modifyChange = (id: string, callback: (old: Change) => Change) => {
         setChanges(changes.map(c => c.id === id ? callback(c) : c))
     }
 
+    // Using YAML, convert a list of changes to text
     const changesToText = (changes: Change[]) => {
         const ordering: { [key: string]: number } = {
             stage: 0,
@@ -60,6 +68,7 @@ function MakePullRequest() {
         ).replaceAll("'", "").replaceAll("\n", "\n  ").replaceAll("+02:00", "").trimEnd()
     }
 
+    // Convert a change to a FullCalendar Event object
     const changeToEvent = (change: Change) => ({
         start: change.start,
         end: change.finsh,
