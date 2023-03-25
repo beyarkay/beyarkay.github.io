@@ -231,6 +231,26 @@ const checkRateLimit = () => {
     })
 }
 
+function pluraliser(singular: string, plural: string, incl_num: boolean) {
+    return (n: number) => (incl_num ? n : "") + " " + (n == 1 ? singular : plural)
+}
+
+function formatDateDifference(date1: Date, date2: Date): string {
+    const day_s = pluraliser("day", "days", true)
+    const hour_s = pluraliser("hour", "hours", true)
+    const minute_s = pluraliser("minute", "minutes", true)
+    const diffInMs = Math.abs(date1.getTime() - date2.getTime())
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+    const diffInHours = Math.floor((diffInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+    const diffInMinutes = Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60))
+
+    const formattedDiff = (diffInDays > 0 ? day_s(diffInDays) + " " : "") +
+                            (diffInHours > 0 ? hour_s(diffInHours) + " "  : "") +
+                            (diffInMinutes > 0 ? minute_s(diffInMinutes) + " "  : "")
+
+    return formattedDiff ? formattedDiff.slice(0, -1) : "0 minutes"
+}
+
 function EskomCalendar() {
     const [areaMetadata, setAreaMetadata] =
         React.useState<Result<AreaMetadata[], string>>( { state: "unsent" })
@@ -348,6 +368,22 @@ function EskomCalendar() {
             </Box>
         </Stack>
     )
+    const detailsContent = (<>
+        <Typography
+            pt={"10px"}
+            align="center"
+            fontSize={20}
+            fontFamily={"Overpass"}
+            color={"text.secondary"}
+        >
+            Eskom-calendar is all about getting up-to-date loadshedding
+            schedules to South Africans. It&apos;s completely free, and has no
+            adverts anywhere (because who wants to scroll past a million
+            adverts when you&apos;re power has just gone off?).
+            <br></br><br></br>
+            Simply type in your suburb above, and we&apos;ll take care of the rest.
+        </Typography>
+    </>)
 
     const autocompleteStack = (
         <Container maxWidth="md">
@@ -380,13 +416,48 @@ function EskomCalendar() {
         </Container>
     )
 
+    const nextLoadshedding = () => {
+        if (events.state === "ready") {
+            const now = new Date()
+            const content = events
+                .content
+                .filter(event => event.area_name === selectedArea?.calendar_name.replace(".ics", ""))
+                .sort((a, b) => a.start < b.start ? -1 : (a.start > b.start ? 1 : 0))
+                .filter(event => (new Date(event.finsh)) > now)
+                .at(0)
+            if (typeof content === "undefined") {
+                return (<>
+                    <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{pt: 2}}>
+                        No loadshedding in your future 🎉
+                    </Typography>
+                </>)
+            }
+            console.log(content)
+            const timeUntilStart = (new Date(content.start)).getTime() - now.getTime()
+            console.log(timeUntilStart)
+            if (timeUntilStart < 0) {
+                return (<>
+                    <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{pt: 2}}>
+                        Loadshedding will continue for {formatDateDifference(new Date(content.start), now)}.
+                    </Typography>
+                </>)
+            } else {
+                return (<>
+                    <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{pt: 2}}>
+                        Loadshedding will start in {formatDateDifference(new Date(content.start), now)}.
+                    </Typography>
+                </>)
+            }
+        }
+    }
+
     const calendarComponent = (
         <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, iCalendarPlugin]}
             eventTextColor="#000"
             initialView={"timeGrid"} // days along the x-axis, time along the y-axis
             height={"auto"}
-            nowIndicator={false} // Show a horizontal bar for the current time
+            nowIndicator={true} // Show a horizontal bar for the current time
             allDaySlot={false} // do not give any space for all-day events
             slotDuration={"01:00:00"}
             visibleRange={(currentDate) => {
@@ -428,6 +499,7 @@ function EskomCalendar() {
                     }}) : []}
         />
     )
+
     const iconStack = (
         <Stack direction="row" alignItems="center" justifyContent="space-evenly"  sx={{ marginTop: 2, background: "#ECC11F"}}>
             <Box width={"25%"} m="10px">
@@ -580,8 +652,9 @@ function EskomCalendar() {
             </Grid>
             <Container maxWidth="md">
                 {hideCalendar
-                    ? undefined
+                    ? <>{detailsContent}</>
                     : <>
+                        {nextLoadshedding()}
                         {calendarComponent}
                         {iconStack}
                         {shareVia}

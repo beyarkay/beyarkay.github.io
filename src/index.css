@@ -33,5 +33,9 @@ body {
 }
 /* The little red line that indicates the current date/time */
 .fc .fc-timegrid-now-indicator-container {
-  overflow: visible;
+    overflow: visible;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: .5em;
 }
