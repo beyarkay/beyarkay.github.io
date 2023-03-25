@@ -31,3 +31,7 @@ body {
     background: #ECC11F;
     color: #000;
 }
+/* The little red line that indicates the current date/time */
+.fc .fc-timegrid-now-indicator-container {
+  overflow: visible;
+}
