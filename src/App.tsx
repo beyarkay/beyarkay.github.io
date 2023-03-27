@@ -1,4 +1,3 @@
-import "./App.css"
 import * as React from "react"
 import {createTheme, responsiveFontSizes} from "@mui/material"
 import {Navigate, Route, Routes} from "react-router"
