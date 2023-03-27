@@ -3,7 +3,7 @@ import {Stack} from "@mui/system"
 import match from "autosuggest-highlight/match"
 import parse from "autosuggest-highlight/parse"
 import * as React from "react"
-import {Area, AreaMetadata, prettifyName} from "./EskomCalendar"
+import {Area, AreaMetadata, prettifyName, shortenProvince} from "./EskomCalendar"
 
 type AreaAutoCompleteOptionProps = {
     props: object,
@@ -25,18 +25,15 @@ function AreaAutoCompleteOption({props, option, state}: AreaAutoCompleteOptionPr
     const area_names = option.areas
         .filter(area => includesInputValue(area))
         .map(area => {
+            const defined = [prettifyName(area.municipality), shortenProvince(area.province)].filter(p => typeof p !== "undefined")
+            const posttext = defined.length > 0 ? (" (" + defined.join(", ") + ")") : ""
             if (Array.isArray(area.name)) {
-                return area.name.filter(a => a.replaceAll("-", " ").toLowerCase().includes(normed_input))
-            } else {
                 return area.name
-            }
-        })
-        // .sort((a, b) => includesInputValue(a) === includesInputValue(b) ? a.name.localeCompare(b.name) : (includesInputValue(a) ? -1 : 1))
-        .map(a => {
-            if (Array.isArray(a)) {
-                return a.map(n => prettifyName(n)).join(", ")
+                    .filter(a => a.replaceAll("-", " ").toLowerCase().includes(normed_input))
+                    .map(a => `${prettifyName(a)}${posttext}`)
+                    .join(", ")
             } else {
-                return prettifyName(a)
+                return `${prettifyName(area.name)}${posttext}`
             }
         })
         .join(", ")

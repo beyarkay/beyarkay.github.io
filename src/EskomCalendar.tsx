@@ -11,7 +11,6 @@ import {
     Button,
     Container,
     Grid,
-    Link,
     Stack,
     Typography,
 } from "@mui/material"
@@ -103,20 +102,21 @@ export type Event = {
     source: string,
 };
 
-function shortenProvince(province: string) {
-    return province.replace("Eastern Cape", "EC")
-        .replace("Free State", "FS")
-        .replace("Kwazulu Natal", "KZN")
-        .replace("Limpopo", "LP")
-        .replace("Mpumalanga", "MP")
-        .replace("North West", "NC")
-        .replace("Northern Cape", "NW")
-        .replace("Western Cape", "WC")
+export function shortenProvince(province: string | undefined) {
+    return province?.replace("-", " ")
+        .toLowerCase()
+        .replace("eastern cape", "EC")
+        .replace("free state", "FS")
+        .replace("kwazulu natal", "KZN")
+        .replace("limpopo", "LP")
+        .replace("mpumalanga", "MP")
+        .replace("north west", "NC")
+        .replace("northern cape", "NW")
+        .replace("western cape", "WC")
 }
 
-export function prettifyName(name: string) {
-    return name
-        .replaceAll("-", " ")
+export function prettifyName(name: string | undefined) {
+    return name?.replaceAll("-", " ")
         .replace(".ics", "")
         .replace(
             /\w\S*/g,
@@ -432,9 +432,7 @@ function EskomCalendar() {
                     </Typography>
                 </>)
             }
-            console.log(content)
             const timeUntilStart = (new Date(content.start)).getTime() - now.getTime()
-            console.log(timeUntilStart)
             if (timeUntilStart < 0) {
                 return (<>
                     <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{pt: 2}}>
