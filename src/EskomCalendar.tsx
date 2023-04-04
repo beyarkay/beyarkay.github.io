@@ -442,7 +442,7 @@ function EskomCalendar() {
             if (timeUntilStart < 0) {
                 return (<>
                     <Typography align="center" fontSize={20} fontFamily={"Overpass"} color={"text.secondary"} sx={{pt: 2}}>
-                        Loadshedding will continue for {formatDateDifference(new Date(content.start), now)}.
+                        Loadshedding will continue for {formatDateDifference(new Date(content.finsh), now)}.
                     </Typography>
                 </>)
             } else {
