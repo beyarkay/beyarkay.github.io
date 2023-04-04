@@ -301,12 +301,16 @@ function EskomCalendar() {
             console.log("Retrieved areaMetadata from localStorage")
             setAreaMetadata({ state: "ready", content: areaMetadata })
             if (searchParams.has("calendar")) {
-                setSelectedArea(areaMetadata.find(area => area.calendar_name === searchParams.get("calendar")) || null)
+                const selected_area = areaMetadata.find(area => area.calendar_name === searchParams.get("calendar")) || null
+                document.title = `eskom-calendar: ${prettifyName(selected_area?.calendar_name) ?? "Loadshedding schedules online"}`
+                setSelectedArea(selected_area)
             }
         }
         downloadAreaMetadata().then(newAreaMetadata => {
             if (searchParams.has("calendar")) {
-                setSelectedArea(newAreaMetadata.find(area => area.calendar_name === searchParams.get("calendar")) || null)
+                const selected_area = newAreaMetadata.find(area => area.calendar_name === searchParams.get("calendar")) || null
+                document.title = `eskom-calendar: ${prettifyName(selected_area?.calendar_name) ?? "Loadshedding schedules online"}`
+                setSelectedArea(selected_area)
             }
             setAreaMetadata({ state: "ready", content: newAreaMetadata })
             console.log("Stored areaMetadata in localStorage")
@@ -392,6 +396,8 @@ function EskomCalendar() {
                 value={selectedArea}
                 hideCalendar={hideCalendar}
                 onChange={(_event, value) => {
+                    const area_name = prettifyName(value?.calendar_name)
+                    document.title = `eskom-calendar: ${area_name ?? "Loadshedding schedules online"}`
                     setSelectedArea(value)
                     if (value !== null) {
                         searchParams.set("calendar", value.calendar_name)
