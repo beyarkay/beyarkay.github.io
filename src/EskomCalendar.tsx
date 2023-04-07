@@ -127,8 +127,6 @@ export function prettifyName(name: string | undefined) {
         .replace("Gauteng Tshwane Group", "Tshwane")
 }
 
-
-
 const getReleaseAssets = async () => {
     const octokit = new Octokit({
         auth: process.env.GH_PAGES_ENV_PAT || process.env.GH_PAGES_PAT
