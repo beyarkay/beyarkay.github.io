@@ -127,6 +127,39 @@ export function prettifyName(name: string | undefined) {
         .replace("Gauteng Tshwane Group", "Tshwane")
 }
 
+
+/**
+ * Custom sorting function for sorting strings with city names and numbers.
+ * @param {string} a - First string to compare.
+ * @param {string} b - Second string to compare.
+ * @returns {number} - Returns -1 if a should come before b, 1 if a should come after b, or 0 if they are equal.
+ */
+function sortNamesAlphaNumerically(a,b){
+  // Extract the city name and number from each string
+  const aParts = a.split(' ');
+  const bParts = b.split(' ');
+  const aCity = aParts.slice(0, -1).join(' ');
+  const bCity = bParts.slice(0, -1).join(' ');
+  const aNumber = parseInt(aParts[aParts.length - 1], 10);
+  const bNumber = parseInt(bParts[bParts.length - 1], 10);
+
+  // Compare the city name
+  if (aCity < bCity) {
+    return -1;
+  } else if (aCity > bCity) {
+    return 1;
+  } else {
+    // If the city names are the same, compare the numbers
+    if (aNumber < bNumber) {
+      return -1;
+    } else if (aNumber > bNumber) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+}
+
 const getReleaseAssets = async () => {
     const octokit = new Octokit({
         auth: process.env.GH_PAGES_ENV_PAT || process.env.GH_PAGES_PAT
@@ -187,9 +220,9 @@ const downloadAreaMetadata = async() => {
             return  (jsyaml.load(yaml) as {area_details: AreaMetadata[]})["area_details"]
                 .sort((a, b) => {
                     if (a.province !== undefined && b.province !== undefined) {
-                        return a.province.localeCompare(b.province)
+                        return sortNamesAlphaNumerically(a.province, b.province)
                     } else {
-                        return a.calendar_name.localeCompare(b.calendar_name)
+                        return sortNamesAlphaNumerically(a.calendar_name, b.calendar_name)
                     }
                 })
         })
