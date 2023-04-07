@@ -26,6 +26,18 @@ function AreaAutoComplete({result, value, onChange, hideCalendar}: AreaAutoCompl
             </Typography>
         </a>
     )
+
+    // Use a sorting collator for performance
+    // https://stackoverflow.com/a/38641281/14555505
+    const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: "base"})
+    // Sort the results "naturally" such that `eskom-1` < `eskom-9` < `eskom-10`
+    const options = result.state === "ready"
+        ? result.content.sort((a, b) => collator.compare(
+            a.calendar_name.replace(/[-_.]/g, " "),
+            b.calendar_name.replace(/[-_.]/g, " ")
+        ))
+        : []
+
     return (
         <Autocomplete
             autoComplete
@@ -38,7 +50,7 @@ function AreaAutoComplete({result, value, onChange, hideCalendar}: AreaAutoCompl
             loading={["unsent", "loading"].includes(result.state)}
             noOptionsText={noOptionsComponent}
             onChange={onChange}
-            options={result.state === "ready" ? result.content : []}
+            options={options}
             renderOption={(props, option, state) => state.inputValue.length > 2 ? <AreaAutoCompleteOption state={state} props={props} option={option}/> : undefined}
             value={value}
             sx={{
