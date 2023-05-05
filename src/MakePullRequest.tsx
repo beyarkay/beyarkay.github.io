@@ -32,10 +32,10 @@ function MakePullRequest() {
     const [stage, setStage] = React.useState<number | undefined>(undefined)
 
     // add a change by simply appending a change onto the list of changes
-    const addChange = (change: Change) => { setChanges([...changes, change]) }
+    const addChange = (change: Change) => {setChanges([...changes, change])}
 
     // remove a change by filtering out a change from the list of changes
-    const removeChange = (id: string) => { setChanges(changes.filter(c => c.id !== id)) }
+    const removeChange = (id: string) => {setChanges(changes.filter(c => c.id !== id))}
 
     // modify a change by looking at the change IDs
     const modifyChange = (id: string, callback: (old: Change) => Change) => {
@@ -44,7 +44,7 @@ function MakePullRequest() {
 
     // Using YAML, convert a list of changes to text
     const changesToText = (changes: Change[]) => {
-        const ordering: { [key: string]: number } = {
+        const ordering: {[key: string]: number} = {
             stage: 0,
             start: 1,
             finsh: 2,
@@ -53,7 +53,7 @@ function MakePullRequest() {
             exclude: 5,
         }
 
-        return "  " + jsyaml.dump(
+        return jsyaml.dump(
             changes.map(c => ({
                 stage: c.stage,
                 start: c.start,
@@ -64,8 +64,12 @@ function MakePullRequest() {
             })).sort(
                 (c1, c2) => c1.start < c2.start ? -1 : (c1.start === c2.start ? 0 : 1)
             ),
-            {sortKeys: (a, b) => ordering[a] - ordering[b]}
-        ).replaceAll("'", "").replaceAll("\n", "\n  ").replaceAll("+02:00", "").trimEnd()
+            {
+                sortKeys: (a, b) => ordering[a] - ordering[b],
+                noArrayIndent: true,
+                indent: 0,
+            }
+        ).replaceAll("'", "").replaceAll("+02:00", "")
     }
 
     // Convert a change to a FullCalendar Event object
@@ -155,9 +159,9 @@ function MakePullRequest() {
                 // few days into the future
                 const endDate = new Date(currentDate.valueOf())
                 endDate.setDate(endDate.getDate() + 6)
-                return { start: new Date(currentDate.valueOf()), end: endDate }
+                return {start: new Date(currentDate.valueOf()), end: endDate}
             }}
-            headerToolbar={{ start: "", center: "", end: "" }} // Remove the header toolbar
+            headerToolbar={{start: "", center: "", end: ""}} // Remove the header toolbar
             slotLabelFormat={{
                 hour: "2-digit",
                 minute: "2-digit",
@@ -188,8 +192,8 @@ function MakePullRequest() {
                     target="_blank"
                     rel="noreferrer"
                     href="https://github.com/beyarkay/eskom-calendar/edit/main/manually_specified.yaml"
-                    onClick={() => { copy(changesToText(changes)) }}
-                > <ContentCopyIcon/> {"Copy & Edit manually_specified"} </Button>
+                    onClick={() => {copy(changesToText(changes))}}
+                > <ContentCopyIcon /> {"Copy & Edit manually_specified"} </Button>
             )}
         </CopyToClipboard>
         <TextField
