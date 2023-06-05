@@ -383,7 +383,7 @@ function EskomCalendar() {
             Eskom-calendar is all about getting up-to-date loadshedding
             schedules to South Africans. It&apos;s completely free, and has no
             adverts anywhere (because who wants to scroll past a million
-            adverts when you&apos;re power has just gone off?).
+            adverts when your power has just gone off?).
             <br></br><br></br>
             Simply type in your suburb above, and we&apos;ll take care of the rest.
         </Typography>
